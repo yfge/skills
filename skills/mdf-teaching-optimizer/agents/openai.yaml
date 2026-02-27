@@ -1,0 +1,4 @@
+skill:
+  display_name: MDF Prompt Optimizer
+  short_description: 审计并优化现有MDF授课提示词，补漏、纠偏、稳语法
+  default_prompt: 审计当前MDF授课提示词与课程资料的一致性，标注遗漏/偏义/执行风险，并在尽量小改动下完成可运行优化。

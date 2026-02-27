@@ -1,0 +1,4 @@
+interface:
+  display_name: "逐字稿/章节资料转MDF"
+  short_description: "将逐字稿或已有章节资料转为分节MarkdownFlow授课提示词"
+  default_prompt: "请把我的逐字稿或已有章节资料转换为按节输出的 MarkdownFlow 授课提示词。严格保留代码和图片位置，保证单节单核心问题，使用面向用户的授课语句，并输出课节索引与变量总表。"
