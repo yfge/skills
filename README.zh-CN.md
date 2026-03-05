@@ -1,4 +1,4 @@
-# mdf-skills-suite
+# ai-shifu-skills
 
 [English README](./README.md)
 
