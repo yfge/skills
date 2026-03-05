@@ -1,5 +1,5 @@
 ---
-name: mdf-teaching-script-generator
+name: ai-shifu-lesson-script-generator
 description: 基于结构化课节片段生成可运行的 lesson 级 MarkdownFlow 授课提示词，保证语法合法、交互受控、最小教学闭环和跨节变量复用。Use when user needs per-lesson MDF prompts from prepared course structure.
 ---
 

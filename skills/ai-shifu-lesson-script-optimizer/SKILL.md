@@ -1,5 +1,5 @@
 ---
-name: mdf-teaching-optimizer
+name: ai-shifu-lesson-script-optimizer
 description: 审计并优化现有 MarkdownFlow 授课提示词，确保与课程资料一致、教学逻辑清晰、互动可执行、变量与语法稳定。Use when user asks to review/optimize MDF teaching prompts, check missing points against source materials, or align chapters with exemplar teaching design.
 ---
 

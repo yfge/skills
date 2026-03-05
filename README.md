@@ -6,19 +6,19 @@ A consolidated repository of 4 MarkdownFlow course-production skills from AI-Shi
 
 ## Included Skills
 
-- `mdf-material-adapter`: clean noisy raw materials into stable lesson segmentation candidates.
-- `mdf-transcript-to-lessons`: convert transcript/document materials into lesson-by-lesson MarkdownFlow scripts.
-- `mdf-teaching-script-generator`: generate runnable lesson prompts from structured lesson segments.
-- `mdf-teaching-optimizer`: audit and optimize existing MarkdownFlow teaching prompts.
+- `ai-shifu-content-segmenter`: clean noisy raw materials into stable lesson segmentation candidates.
+- `ai-shifu-transcript-to-lessons`: convert transcript/document materials into lesson-by-lesson MarkdownFlow scripts.
+- `ai-shifu-lesson-script-generator`: generate runnable lesson prompts from structured lesson segments.
+- `ai-shifu-lesson-script-optimizer`: audit and optimize existing MarkdownFlow teaching prompts.
 
 ## Repository Layout
 
 ```text
 skills/
-  mdf-material-adapter/
-  mdf-transcript-to-lessons/
-  mdf-teaching-script-generator/
-  mdf-teaching-optimizer/
+  ai-shifu-content-segmenter/
+  ai-shifu-transcript-to-lessons/
+  ai-shifu-lesson-script-generator/
+  ai-shifu-lesson-script-optimizer/
 ```
 
 ## Usage
@@ -30,10 +30,10 @@ Each skill keeps its own `SKILL.md` as the source of truth.
 Goal: run the 4 skills as one pipeline from noisy source material to optimized lesson prompts.
 
 1. Prepare source material (transcript or course document).
-2. Run `mdf-material-adapter` to produce stable segment candidates and preserved block index.
-3. Run `mdf-transcript-to-lessons` to convert structured material into lesson-level MarkdownFlow scripts.
-4. Run `mdf-teaching-script-generator` to generate runnable per-lesson teaching prompts.
-5. Run `mdf-teaching-optimizer` to audit and optimize teaching logic, interaction quality, and variable stability.
+2. Run `ai-shifu-content-segmenter` to produce stable segment candidates and preserved block index.
+3. Run `ai-shifu-transcript-to-lessons` to convert structured material into lesson-level MarkdownFlow scripts.
+4. Run `ai-shifu-lesson-script-generator` to generate runnable per-lesson teaching prompts.
+5. Run `ai-shifu-lesson-script-optimizer` to audit and optimize teaching logic, interaction quality, and variable stability.
 
 Expected artifacts:
 

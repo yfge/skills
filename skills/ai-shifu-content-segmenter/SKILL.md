@@ -1,5 +1,5 @@
 ---
-name: mdf-material-adapter
+name: ai-shifu-content-segmenter
 description: 对杂乱逐字稿或课程文档进行清洗、结构化和语义分段，输出稳定的课节切分候选，同时保留代码、图片和关键术语。Use when raw course materials are noisy before MarkdownFlow lesson generation.
 ---
 
