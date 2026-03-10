@@ -1,4 +1,4 @@
-# ai-shifu skills
+# AI-Shifu Skills
 
 [Alternate README Path](./README.zh-CN.md)
 
