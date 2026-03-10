@@ -1,4 +1,4 @@
 interface:
-  display_name: "逐字稿/章节资料转MDF"
-  short_description: "将逐字稿或已有章节资料转为分节MarkdownFlow授课提示词"
-  default_prompt: "请把我的逐字稿或已有章节资料转换为按节输出的 MarkdownFlow 授课提示词。严格保留代码和图片位置，保证单节单核心问题，使用面向用户的授课语句，并输出课节索引与变量总表。"
+  display_name: "Transcript-to-Lessons Orchestrator"
+  short_description: "Convert transcripts into lesson scripts with stable MarkdownFlow gating"
+  default_prompt: "Use $ai-shifu-transcript-to-lessons to convert the source material into lesson scripts, preserve code and images, and return course index plus variable table."

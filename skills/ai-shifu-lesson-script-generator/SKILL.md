@@ -1,139 +1,174 @@
 ---
 name: ai-shifu-lesson-script-generator
-description: 基于结构化课节片段生成可运行的 lesson 级 MarkdownFlow 授课提示词，保证语法合法、交互受控、最小教学闭环和跨节变量复用。Use when user needs per-lesson MDF prompts from prepared course structure.
+description: Generates runnable lesson-level MarkdownFlow teaching prompts from structured lesson segments, with safe interaction logic and stable variable reuse.
 ---
 
-# 授课提示词生成器
+# Lesson Script Generator
 
-为每一节生成可执行的 MDF 脚本。
+Generate runnable MarkdownFlow scripts for each lesson.
 
-## 输出边界
+## Execution Modes
 
-- 只输出“正式授课提示词”内容。
-- 不在授课提示词文件中写方法说明、规范说明、注意事项。
-- 教学目标、核心知识点、章节级交付物等非用户内容，用 `<!-- -->` 注释包裹。
+- Standard mode (default): Structured lesson input is complete; generate full scripts with interaction branching and variable reuse.
+- Fallback mode: Input is minimal; generate stable baseline scripts first, then enrich depth after additional context is supplied.
 
-## 示例教学特点与迁移规则（必用）
+## Language Resolution Policy
 
-以“markdownflow 授课提示词示例-1”为基准抽象，默认应用到所有课节：
+Resolve target language with this strict priority:
+1. `explicit_output_language_request`
+2. `target_language_parameter`
+3. `session_language_preference`
+4. `prompt_language_detection`
+5. `source_material_dominant_language`
+6. `default_fallback_language`
 
-1. 用户直达语言：脚本语句必须是“向用户讲解/提问/反馈/总结”，避免流程旁白。
-2. 认知起点分层：每节采集必要变量即可，不强制开头集中采集。
-3. 证据链讲解：先历史/现象，再数据/机制，再结论，不直接给结论。
-4. 可视化驱动：关键抽象概念必须配可视化任务（HTML信息图或SVG结构图），并写清图形约束；图后必须紧跟文字讲解图，解释机制与边界。
-5. 变量分散采集：每个教学段最多采集1个变量，采集后立刻反馈并改变后续内容。
-6. 互动用于认知深化：互动不只采集信息，至少包含1个“观点澄清/边界校准/反直觉提示”环节。
-7. 交付物闭环：至少包含1个可复用交付物；按章节复杂度可扩展为双交付。
-8. 行动与课程联动：行动型任务必须满足其一：
-   - 立刻可做（当下可启动）；
-   - 明确映射后续章节或后续模块，避免割裂。
-9. 章节承接句：仅在用户允许跨章承接时使用；否则结尾只做本节收束。
-10. 用户可见表达：正文只保留面向用户的讲解与提问，禁止暴露“变量策略/原文口径/全局约束”等制作术语。
-11. 提问具体化：互动问题必须具体可回答，禁止抽象表述（如“发起观点澄清”）。
-12. 观点题必须分叉：`*_viewpoint_check` 题型必须按选项给出不同反馈，不允许“统一三步模板”一刀切。
-13. 演进对照显式化：当同类问题在后续章节再次出现，题干必须明确“用于对照上次结果/阶段演进”。
+Use these optional control fields:
+- `target_language` (BCP-47 recommended, for example `fr-FR`, `ja-JP`, `zh-CN`)
+- `bilingual_output` (`true|false`)
+- `term_policy` (`preserve|translate|mixed`)
+- `quote_policy` (`translate_only|original_plus_translation`)
 
-迁移要求：
-- 骨架保持稳定，内容表达可按课题灵活替换。
-- 不复制示例具体业务措辞，保留其教学结构和交互节奏。
-- 章节结构必须“内容驱动”，禁止机械套用固定顺序。
+Output rule:
+- Learner-facing script text must follow resolved target language unless `bilingual_output` is true.
 
-## 单节生成策略（灵活）
+## Output Boundary
 
-固定锚点（必须有）：
-1. 开场（本节目标 + 封面图）。
-2. 证据链讲解（现象/历史 -> 机制/数据 -> 结论）。
-3. 至少1次有效互动（采集后即时反馈并改变后续内容）。
-4. 至少1个可复用交付物。
-5. 收束总结（按章节特性决定是否交互式结尾）。
+- Output learner-facing teaching prompt content only.
+- Do not include process notes, author instructions, or policy notes in final script output.
+- Internal design notes may appear only in HTML comments when needed.
 
-可变模块（按章节需要插入）：
-- 观点澄清互动。
-- 误判校正。
-- 双交付闭环（理解型 + 行动型）。
-- 章节承接语（若用户允许跨章依赖）。
-- 图文协同强化（为核心知识点补“先图后文”的讲解块）。
+## Teaching Pattern Baseline
 
-## MarkdownFlow 语法规则（按官方文档）
+Use these defaults unless lesson content requires a justified variation:
 
-- `=== ... ===` 仅用于“固定内容保持不变”文本块。
-- 禁止把整节内容或模块标题整体包在 `=== ===` 中。
-- 禁止用 `!=== ... !===` 把整节正文一把锁死；固定输出只用于核心原样口径。
-- 图片若必须原样输出，使用单行固定语法逐条包裹：`===![原文配图X](https://resource.ai-shifu.cn/...)===`。
-- 模块结构使用普通 Markdown 与 `---` 分隔。
-- 交互后必须复述用户选择，并让该变量改变后续内容。
-- 输入型交互提供示例，避免用户空输入。
-- 输入型变量语法统一：`?[%{{var}}...提示语]`，避免变体写法导致运行不稳定。
+1. Learner-facing language only.
+2. Variable collection is distributed, not front-loaded.
+3. Build evidence chain from observation to mechanism to conclusion.
+4. Use visual-first explanation for abstract concepts, then textual interpretation.
+5. Every collected variable must immediately affect downstream content.
+6. Include at least one deepening interaction (calibration, boundary check, or misconception correction).
+7. Include at least one reusable deliverable.
+8. Action steps must be immediately executable or explicitly staged for downstream lessons.
+9. Use carryover statements only if cross-lesson dependency is allowed.
+10. Avoid exposing internal authoring terms in learner-facing text.
+11. Keep interaction prompts concrete and answerable.
+12. `*_viewpoint_check` prompts must branch with distinct feedback paths.
+13. Repeated interaction patterns are allowed only when framed as staged comparison.
 
-详细规则见 `references/markdownflow-spec.md`。
-示例特征见 `references/example-teaching-patterns.md`。
-认知讲解技巧见 `references/cognitive-teaching-techniques.md`。
+## Single-Lesson Generation Strategy
 
-## MarkdownFlow 语法规范（必须遵守）
+Required anchors:
+1. Opening objective plus visual cover.
+2. Evidence-chain explanation.
+3. At least one effective interaction with visible downstream effect.
+4. At least one reusable deliverable.
+5. Lesson close with summary or decision checkpoint.
 
-1. 变量：
-- 用 `{{var_name}}` 引用变量；
-- 变量名不可含空格；
-- 未赋值变量默认 `"UNKNOWN"`。
+Optional modules:
+- Viewpoint calibration.
+- Misconception correction.
+- Dual deliverables (understanding + action).
+- Cross-lesson bridge sentence.
+- Additional visual-text reinforcement blocks.
 
-2. 交互：
-- 单选：`?[%{{var}} 选项A | 选项B | 选项C]`
-- 多选：`?[%{{var}} 选项A || 选项B || 选项C]`
-- 输入：`?[%{{var}} ... 请输入]`
-- 按钮+输入：`?[%{{var}} 选项A | 选项B | ...其他，请填写]`
+## MarkdownFlow Rules
 
-3. 分镜：
-- 用 `---` 分隔模块；
-- 每个模块只完成一个明确目标。
+- Use `=== ... ===` only for fixed text that must remain unchanged.
+- Never lock full lesson bodies inside deterministic blocks.
+- For fixed images, use one deterministic line per image.
+- Use `---` to separate instructional modules.
+- After each interaction, restate learner selection and reflect it in downstream content.
+- For input prompts, include example phrasing to reduce blank responses.
+- Use stable input syntax: `?[%{{var}}...prompt]`.
 
-4. 确定性输出：
-- 单行固定文本：`===固定文本===`
-- 多行固定文本围栏：
+See `references/markdownflow-spec.md`, `references/example-teaching-patterns.md`, and `references/cognitive-teaching-techniques.md`.
+
+## MarkdownFlow Syntax (Required)
+
+1. Variables:
+- Use `{{var_name}}` for references.
+- Variable names cannot contain spaces.
+- Undefined variables default to `"UNKNOWN"`.
+
+2. Interactions:
+- Single-select: `?[%{{var}} Option A | Option B | Option C]`
+- Multi-select: `?[%{{var}} Option A || Option B || Option C]`
+- Input: `?[%{{var}} ... enter your answer]`
+- Button + input: `?[%{{var}} Option A | Option B | ...Other, please specify]`
+
+3. Segments:
+- Use `---` to split modules.
+- Keep one clear objective per module.
+
+4. Deterministic output:
+- Single-line fixed text: `===fixed text===`
+- Multi-line fixed text:
 ```md
 !===
-第1行
-第2行
+Line 1
+Line 2
 !===
 ```
 
-5. 普通内容写作原则：
-- 普通内容是“给AI的创作指令”，不是直接给读者的成文；
-- 禁止直接输出整篇文章正文，应指导AI生成正文。
+5. Authoring principle:
+- Script text should guide generation behavior.
+- Avoid dumping fully polished end-learner prose as fixed output.
 
-## 变量策略
+## Variable Strategy
 
-- 分散采集变量，优先每个模块最多 1 个变量。
-- 单节最多 5 个互动，推荐 3-4 个。
-- 单次连续采集不超过 3 个变量，采完必须立刻反馈再进入下一段讲解。
-- 优先复用全局变量，必要时新增章节变量。
-- 每个变量必须有后续用途（分流、解释深度、交付物差异）。
-- 禁止输出未采集/未注入变量占位（unknown 风险）。
-- 输入型变量建议语法：`?[%{{var}}...提示语]`。
-- 严禁课程内重复采集同一变量；若因阶段演进需要复采，必须在题干中点明“用于前后对比”。
-- 前文未采集变量不得提前引用；变量出现顺序必须与采集顺序一致。
-- 语义重复控制：不同变量名但同义问题默认视为重复采集，需显式标注“对照目的”才可保留。
-- 分流落地检查：每个互动后至少出现一次“按该变量变化”的具体反馈语句。
+- Prefer at most one variable collection per module.
+- Max five interactions per lesson (recommended three to four).
+- No more than three consecutive variable collections before feedback.
+- Reuse global variables when possible; add lesson-local variables only when required.
+- Every variable must have downstream utility (branching, depth control, or deliverable variation).
+- No unresolved placeholders in learner-facing text.
+- Do not recollect the same variable unless explicitly marked as staged comparison.
+- Prevent semantic duplicates even when variable names differ.
 
-## 图文协同硬约束（新增）
+## Visual-Text Coordination Constraints
 
-- 每节开场默认包含 SVG 封面图。
-- 每个核心知识点至少包含一处“图 + 文字讲解图”组合。
-- 图用于压缩结构，文用于解释机制、成立边界、常见误解；禁止图文重复堆砌。
-- 若原始资料图片无法稳定显示，改为“生成 SVG/HTML 图 + 文字讲解图”，不保留失效占位图。
+- Include an SVG cover in each lesson by default.
+- Every core concept must include at least one visual-plus-explanation pair.
+- Visuals compress structure; text explains mechanism, limits, and pitfalls.
+- Replace unstable source images with generated SVG/HTML visuals when needed.
 
-## 互动设计硬约束（新增）
+## Interaction Design Constraints
 
-- 单节中 `viewpoint_check` 建议最多 1 次，避免同质化互动疲劳。
-- `viewpoint_check` 必须连接到下一动作：修正建议、优先级调整、交付物填写差异，至少命中其一。
-- 若使用“复述-边界-反直觉”结构，需按不同选项写不同内容，不可复制同一段模板。
+- Use no more than one `viewpoint_check` in a lesson unless justified.
+- Each `viewpoint_check` must trigger a concrete next action.
+- If using a "restate-boundary-counterintuitive" pattern, branch by option with distinct content.
 
-## 输出结构
+## Output Structure
 
-每节返回：
+Return per lesson:
 - `lesson_id`
 - `lesson_title`
 - `mdf_script`
 - `used_variables`
 - `depends_on_lessons`
 
-详见 `references/lesson-template.md`。
+See `references/lesson-template.md`.
+
+## Validation Checkpoints
+
+- Minimum teaching loop exists (setup, explanation, interaction, close).
+- Interaction outcomes visibly alter downstream content.
+- Variable safety rules pass (collect before reference, no duplicate recollection).
+- Core concepts satisfy visual-plus-text coordination.
+- Script remains valid and runnable MarkdownFlow.
+
+## Report Template
+
+See `references/report-template.md`.
+
+## Related Skills
+
+- Upstream preprocessing: `ai-shifu-content-segmenter`
+- Upstream orchestration: `ai-shifu-transcript-to-lessons`
+- Downstream optimization: `ai-shifu-lesson-script-optimizer`
+- Quality governance: `ai-shifu-skill-quality-optimizer`
+
+## Examples
+
+- `examples/minimal.md`
+- `examples/edge-case.md`

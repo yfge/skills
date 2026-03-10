@@ -1,63 +1,110 @@
 ---
 name: ai-shifu-content-segmenter
-description: 对杂乱逐字稿或课程文档进行清洗、结构化和语义分段，输出稳定的课节切分候选，同时保留代码、图片和关键术语。Use when raw course materials are noisy before MarkdownFlow lesson generation.
+description: Cleans noisy transcripts and course documents, then produces stable semantic lesson segments while preserving code, images, and critical terminology.
 ---
 
-# 课程资料适配器
+# Course Material Segmenter
 
-把噪声较高的课程资料整理成可稳定生成课节的中间结构。
+Turn messy course source material into a reliable intermediate structure for downstream lesson generation.
 
-## 执行流程
+## Execution Modes
 
-1. 去除口头赘词与重复片段，不改变原意。
-2. 标记不可改写块：代码、图片、表格。
-3. 按语义连续性分段，不仅依赖标题层级。
-4. 生成课节边界候选，保证单节单核心问题。
-5. 返回带源片段映射的结构化分段。
+- Standard mode (default): Input is complete enough to run full cleanup, semantic segmentation, and lesson-boundary extraction.
+- Fallback mode: Input is incomplete or out of order; produce coarse segments first, flag uncertainty, and preserve traceability for targeted reruns.
 
-## 分段结构
+## Language Resolution Policy
 
-每个分段返回：
+Resolve target language with this strict priority:
+1. `explicit_output_language_request`
+2. `target_language_parameter`
+3. `session_language_preference`
+4. `prompt_language_detection`
+5. `source_material_dominant_language`
+6. `default_fallback_language`
+
+Use these optional control fields:
+- `target_language` (BCP-47 recommended, for example `fr-FR`, `ja-JP`, `zh-CN`)
+- `bilingual_output` (`true|false`)
+- `term_policy` (`preserve|translate|mixed`)
+- `quote_policy` (`translate_only|original_plus_translation`)
+
+Notes:
+- Do not restrict supported languages to a fixed list.
+- If output language is explicit, source-language distribution must not override it.
+
+## Workflow
+
+1. Remove filler language and duplicated phrasing without changing meaning.
+2. Mark immutable blocks: code, images, and tables.
+3. Segment by semantic continuity instead of headings alone.
+4. Propose lesson boundaries with one core question per lesson.
+5. Return source-linked structured segments.
+
+## Segment Schema
+
+Each segment includes:
 - `segment_id`
-- `segment_type`（`concept`、`example`、`code`、`image`、`exercise`、`transition`）
+- `segment_type` (`concept`, `example`, `code`, `image`, `exercise`, `transition`)
 - `core_point`
-- `preserve_block`（`yes` 或 `no`）
+- `preserve_block` (`yes` or `no`)
 - `source_span`
 
-## 保真规则
+## Preservation Rules
 
-必须保留：
-- 代码内容与 fence 类型。
-- 图片 URL、alt 文本、相对位置。
-- 专有术语与关键事实口径。
+Must preserve:
+- Code content and fence language.
+- Image URLs, alt text, and relative placement.
+- Domain terms and factual statements.
 
-允许改写：
-- 口头填充词。
-- 断句与标点修复。
-- 冗余过渡语。
+Can normalize:
+- Speech filler.
+- Sentence breaks and punctuation.
+- Redundant transitions.
 
-## 迁移友好规则
+## Transfer Signals
 
-为后续教学迁移保留以下信息：
-- `learner-hook`：可直接触发用户思考的原句或问题。
-- `evidence-type`：历史/现象/数据/机制/结论标签。
-- `visual-cue`：适合做 HTML 或 SVG 可视化的片段标记。
-- `concept-conflict`：可形成认知冲突的观点对。
-- `boundary-cue`：结论成立/失效边界线索。
-- `action-cue`：可形成“当下可启动”或“后续模块联动”的行动线索。
-- `density-cue`：高信息密度句群标记（避免后续生成时被过度稀释）。
-- `quote-cue`：可保留原句语气的关键表达（用于提升讲解原味与准确度）。
-- `visual-text-pair-cue`：建议“先图后文”的知识点配对线索。
-- `interaction-intent-cue`：互动问题意图标签（分层/分流/校准/对照），用于避免同义重复提问。
-- `compare-cue`：适合做“前后对照/阶段演进”复采的问题线索。
+Capture these fields for downstream teaching quality:
+- `learner_hook`: statements that can trigger learner reflection.
+- `evidence_type`: one of history, phenomenon, data, mechanism, or conclusion.
+- `visual_cue`: fragments suited for SVG/HTML visual support.
+- `concept_conflict`: candidate idea conflicts for cognitive contrast.
+- `boundary_cue`: clues for validity boundaries.
+- `action_cue`: clues that can become immediate or staged actions.
+- `density_cue`: high-information chunks that should not be diluted.
+- `quote_cue`: original wording worth preserving.
+- `visual_text_pair_cue`: clues for "visual first, explanation second" blocks.
+- `interaction_intent_cue`: intent labels such as diagnose, branch, calibrate, compare.
+- `compare_cue`: candidate prompts for before/after comparison.
 
-## 输出
+## Outputs
 
-输出结果：
-- 有序分段列表。
-- 课节切分候选。
-- 每节核心问题。
-- 保真块索引。
-- 迁移线索（`learner-hook`、`evidence-type`、`visual-cue`、`concept-conflict`、`boundary-cue`、`action-cue`、`density-cue`、`quote-cue`、`visual-text-pair-cue`、`interaction-intent-cue`、`compare-cue`）。
+- Ordered segment list.
+- Lesson boundary candidates.
+- One core question per lesson.
+- Preservation block index.
+- Full transfer-signal package.
 
-详见 `references/segmentation-rules.md`。
+See `references/segmentation-rules.md`.
+
+## Validation Checkpoints
+
+- Segment output covers all valid source spans in traceable order.
+- Code/image/table blocks keep original placement and format.
+- Every lesson candidate resolves to one core question.
+- Transfer-signal fields are complete and usable downstream.
+- Cleanup does not alter key facts or terminology.
+
+## Report Template
+
+See `references/report-template.md`.
+
+## Related Skills
+
+- Downstream orchestration: `ai-shifu-transcript-to-lessons`
+- Downstream script generation: `ai-shifu-lesson-script-generator`
+- Quality governance: `ai-shifu-skill-quality-optimizer`
+
+## Examples
+
+- `examples/minimal.md`
+- `examples/edge-case.md`

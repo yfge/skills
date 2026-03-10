@@ -1,0 +1,112 @@
+schema_version: "1.0"
+name: "ai-shifu-lesson-script-optimizer"
+slug: "ai-shifu-lesson-script-optimizer"
+one_liner: "Audit and optimize existing MarkdownFlow teaching prompts while preserving runtime stability."
+description: "Audits and improves existing MarkdownFlow teaching prompts to fix coverage gaps, interaction quality, and variable or syntax stability issues."
+category: "lesson-script-optimization"
+target_users:
+  - "Instructional designers"
+  - "Course content creators"
+  - "Learning quality reviewers"
+primary_problem: "Existing scripts can miss source points or contain unstable interactions and variable logic."
+language_resolution:
+  allow_any_language: true
+  bcp47_recommended: true
+  priority:
+    - "explicit_output_language_request"
+    - "target_language_parameter"
+    - "session_language_preference"
+    - "prompt_language_detection"
+    - "source_material_dominant_language"
+    - "default_fallback_language"
+  default_fallback_language: "en-US"
+inputs:
+  - name: "existing_mdf_script"
+    type: "markdown"
+    required: true
+    description: "Current teaching script to audit and improve."
+  - name: "source_course_material"
+    type: "text|markdown|json"
+    required: true
+    description: "Source material for coverage and meaning validation."
+  - name: "optimization_constraints"
+    type: "json"
+    required: false
+    description: "Rules for interaction limits and cross-lesson dependency behavior."
+  - name: "target_language"
+    type: "text"
+    required: false
+    description: "Requested output language tag (BCP-47 recommended, for example `fr-FR` or `ja-JP`)."
+  - name: "bilingual_output"
+    type: "boolean"
+    required: false
+    description: "Whether to output bilingual content instead of single-target language content."
+  - name: "term_policy"
+    type: "text"
+    required: false
+    description: "Terminology policy: `preserve`, `translate`, or `mixed`."
+  - name: "quote_policy"
+    type: "text"
+    required: false
+    description: "Quote policy: `translate_only` or `original_plus_translation`."
+outputs:
+  - name: "optimized_mdf_script"
+    type: "markdown"
+    required: true
+    description: "Improved runnable MarkdownFlow script."
+  - name: "risk_and_issue_report"
+    type: "json"
+    required: true
+    description: "Risk report covering gaps, drift, interaction, and syntax issues."
+  - name: "change_list"
+    type: "json"
+    required: true
+    description: "Grouped change list by issue class."
+tech_stack:
+  languages:
+    - "markdown"
+    - "yaml"
+  runtime:
+    - "codex-skill"
+dependencies:
+  internal_skills: []
+  external_services: []
+  api_keys_required: false
+maturity: "beta"
+reusability_score: 4
+docs_score: 5
+demo:
+  type: "repo_example"
+  url: "./skills/ai-shifu-lesson-script-optimizer/examples/minimal.md"
+keywords:
+  zh:
+    - "script optimization"
+    - "coverage audit"
+    - "interaction branching"
+    - "variable stability"
+  en:
+    - "script optimization"
+    - "coverage audit"
+    - "interaction branching"
+    - "variable stability"
+triggers:
+  zh:
+    - "audit and optimize an existing markdownflow script"
+    - "find missing points against source material"
+    - "fix variable and syntax risk in teaching prompts"
+  en:
+    - "audit and optimize an existing markdownflow script"
+    - "find missing points against source material"
+    - "fix variable and syntax risk in teaching prompts"
+related_skills:
+  - "ai-shifu-lesson-script-generator"
+  - "ai-shifu-transcript-to-lessons"
+  - "ai-shifu-skill-quality-optimizer"
+aliases:
+  zh:
+    - "lesson script optimizer"
+  en:
+    - "lesson script optimizer"
+owner: "ai-shifu"
+license: "UNLICENSED"
+last_verified_at: "2026-03-10"

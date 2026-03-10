@@ -1,21 +1,31 @@
-# MarkdownFlow 规范（官方口径）
+# MarkdownFlow Quick Spec
 
-来源：
-- https://markdownflow.ai/docs/zh/
-- https://markdownflow.ai/docs/zh/overview/
-- https://markdownflow.ai/docs/zh/reference/syntax/
-- https://markdownflow.ai/docs/zh/reference/variables/
+## Variables
 
-## 关键规则
+- Reference syntax: `{{var_name}}`
+- No spaces in variable names
+- Undefined variables resolve to `"UNKNOWN"`
 
-1. `=== ... ===` 仅用于固定内容块（保持不变）。
-2. 不要把整段授课内容都包进 `=== ... ===`，否则模型无法演绎。
-3. 授课提示词文件必须从正式授课内容开始，不包含方法说明。
-4. 交互语句与变量赋值要可执行，交互后必须有响应。
-5. 变量采集要分散，减少单轮用户负担。
+## Interactions
 
-## 项目约束（本技能额外要求）
+- Single-select: `?[%{{var}} Option A | Option B | Option C]`
+- Multi-select: `?[%{{var}} Option A || Option B || Option C]`
+- Input: `?[%{{var}} ... enter your answer]`
+- Button + input: `?[%{{var}} Option A | Option B | ...Other, please specify]`
 
-1. 每个模块尽量只采集 1 个变量。
-2. 每个变量必须改变后续讲解或交付物。
-3. 章节结尾统一使用“总结”命名。
+## Structure
+
+- Use `---` between instructional segments.
+- Keep one objective per segment.
+
+## Deterministic Output
+
+- Single-line fixed text: `===fixed text===`
+- Multi-line fixed text:
+
+```md
+!===
+Line 1
+Line 2
+!===
+```

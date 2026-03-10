@@ -1,21 +1,17 @@
-# 单节模板（可迁移、内容驱动）
+# Lesson Output Template
 
-## 必选锚点
-1. 开场：本节目标 + 封面图。
-2. 核心讲解：证据链（现象/历史 -> 机制/数据 -> 结论）。
-3. 有效互动：至少1个变量，采集后即时反馈并改变后续讲解。
-4. 交付物：至少1个可复用产出（可附参考填法）。
-5. 收束：回到本节目标，给出下一步判断或动作。
+## Required Fields
 
-## 可选模块（按章节特性插入）
-- 观点澄清（三步法：复述 -> 边界 -> 反直觉提醒）。
-- 误判校正（>=3误判 + 至少1个立即修正动作）。
-- 行动型交付（短周期验证）。
-- 跨章承接（用户允许时启用）。
+- `lesson_id`
+- `lesson_title`
+- `mdf_script`
+- `used_variables`
+- `depends_on_lessons`
 
-## 节奏与变量规则
-- 知识点段落之间使用 `---` 分隔。
-- 单节最多 5 个互动，推荐 3-4 个。
-- 不强制开头集中采集变量。
-- 单段最多采集1个变量。
-- 禁止未采集变量在正文占位输出。
+## Guidance
+
+- `lesson_id`: stable and deterministic.
+- `lesson_title`: concise learner-facing title.
+- `mdf_script`: runnable MarkdownFlow content.
+- `used_variables`: includes collection point and effect scope.
+- `depends_on_lessons`: explicit list; empty list if none.

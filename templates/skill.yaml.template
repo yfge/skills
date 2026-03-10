@@ -1,0 +1,100 @@
+schema_version: "1.0"
+name: "skill-name"
+slug: "skill-slug"
+one_liner: "One-sentence value proposition."
+description: "Longer description for indexing and search."
+share_profile:
+  summary: "Forwardable summary in polished international English (80-140 chars)."
+  audience:
+    zh:
+      - "Primary audience 1"
+      - "Primary audience 2"
+    en:
+      - "Primary audience 1"
+      - "Primary audience 2"
+  handoff:
+    when_to_use: "When this skill should be routed in."
+    expected_input: "Minimum context required before handoff."
+    expected_output: "Primary output to expect after handoff."
+category: "content-preprocessing|lesson-generation|optimization|workflow"
+target_users:
+  - "Course content creator"
+  - "Learning workflow engineer"
+primary_problem: "The core problem this skill solves."
+language_resolution:
+  allow_any_language: true
+  bcp47_recommended: true
+  priority:
+    - "explicit_output_language_request"
+    - "target_language_parameter"
+    - "session_language_preference"
+    - "prompt_language_detection"
+    - "source_material_dominant_language"
+    - "default_fallback_language"
+  default_fallback_language: "en-US"
+inputs:
+  - name: "input_name"
+    type: "text|markdown|json|file"
+    required: true
+    description: "Input description"
+  - name: "target_language"
+    type: "text"
+    required: false
+    description: "Requested output language tag (BCP-47 recommended)."
+  - name: "bilingual_output"
+    type: "boolean"
+    required: false
+    description: "Whether to output bilingual learner-facing content."
+  - name: "term_policy"
+    type: "text"
+    required: false
+    description: "Terminology policy: preserve|translate|mixed."
+  - name: "quote_policy"
+    type: "text"
+    required: false
+    description: "Quote policy: translate_only|original_plus_translation."
+outputs:
+  - name: "output_name"
+    type: "text|markdown|json|bundle"
+    required: true
+    description: "Output description"
+tech_stack:
+  languages:
+    - "markdown"
+  runtime:
+    - "codex-skill"
+dependencies:
+  internal_skills:
+    - "another-skill-slug"
+  external_services: []
+  api_keys_required: false
+maturity: "experimental|beta|stable|deprecated"
+reusability_score: 0
+docs_score: 0
+demo:
+  type: "repo_example|none|github_pages|huggingface_space|other"
+  url: "./skills/skill-slug/examples/minimal.md"
+keywords:
+  zh:
+    - "keyword one"
+    - "keyword two"
+  en:
+    - "keyword one"
+    - "keyword two"
+triggers:
+  zh:
+    - "trigger phrase one"
+    - "trigger phrase two"
+  en:
+    - "trigger phrase one"
+    - "trigger phrase two"
+related_skills:
+  - "another-skill-slug"
+aliases:
+  zh:
+    - "skill alias"
+  en:
+    - "skill alias"
+owner: "ai-shifu"
+license: "UNLICENSED"
+last_verified_at: "2026-03-10"

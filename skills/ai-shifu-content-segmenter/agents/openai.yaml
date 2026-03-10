@@ -1,4 +1,4 @@
 interface:
-  display_name: "课程资料适配器"
-  short_description: "清洗课程资料并输出可转写的稳定分段"
-  default_prompt: "请预处理我的课程资料（可含已有章节）：去噪、保留代码/图片/术语，按语义边界分段，输出课节切分候选、源片段映射与迁移线索。"
+  display_name: "Course Material Segmenter"
+  short_description: "Clean noisy course material and produce stable semantic lesson segments"
+  default_prompt: "Use $ai-shifu-content-segmenter to clean the source material, preserve code and image blocks, and output stable lesson segmentation candidates."

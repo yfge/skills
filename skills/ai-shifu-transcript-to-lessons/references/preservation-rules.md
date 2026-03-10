@@ -1,18 +1,23 @@
-# 保真规则
+# Preservation Rules
 
-## 不可改写
-- 代码块内容与语言 fence。
-- 图片 URL、alt 文本、相对位置。
-- 关键术语与数字口径。
+## Immutable Assets
 
-## 固定输出语法约束（新增）
-- 仅把“必须原样输出”的核心信息放入固定语法。
-- 禁止用 `!=== ... !===` 一次性包住整节正文。
-- 对“必须原样输出”的图片，逐条使用单行固定语法：
-  - `===![原文配图1](https://resource.ai-shifu.cn/xxxx)==='
-- 若图片不是强制原样口径，可保持普通 Markdown 图片写法。
+- Code blocks and fence language.
+- Image URLs, alt text, and ordering.
+- Regulated wording or fixed numeric thresholds.
 
-## 可优化
-- 口头赘词。
-- 重复过渡句。
-- 断句与标点。
+## Controlled Rewriting
+
+Allowed:
+- Filler removal.
+- Sentence smoothing.
+- Structural reorganization for lesson clarity.
+
+Not allowed:
+- Silent factual changes.
+- Unmarked omission of required source evidence.
+- Variable references before collection.
+
+## Deterministic Block Policy
+
+Use deterministic blocks only for truly fixed content. Do not lock entire lessons in fixed syntax.

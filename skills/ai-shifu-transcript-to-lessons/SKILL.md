@@ -1,120 +1,166 @@
 ---
 name: ai-shifu-transcript-to-lessons
-description: 将传统课程逐字稿或长文档课程资料转换为按节输出的 MarkdownFlow 授课提示词，严格保留代码与图片位置，稳定切分课节，产出交互变量与课程索引。Use when user asks to transform 课程资料, 逐字稿, 文档 into runnable lesson-by-lesson MDF scripts.
+description: Converts long-form transcripts or course documents into lesson-by-lesson MarkdownFlow teaching scripts with stable structure, preserved artifacts, and reusable variables.
 ---
 
-# 逐字稿转分节授课提示词
+# Transcript to Lesson Scripts
 
-将原始课程资料转为可运行的分节 MarkdownFlow 授课脚本。
+Convert raw course material into runnable lesson-level MarkdownFlow scripts.
 
-## 输出边界
+## Execution Modes
 
-- 生成结果从“正式授课引导”开始。
-- 不在最终授课文件写“制作规范/语法说明/执行说明”。
-- 这些说明统一放到 skill 与 references。
+- Standard mode (default): Input quality is sufficient; run full pipeline from segmentation to per-lesson script generation and index assembly.
+- Fallback mode: Input is incomplete or low quality; produce coarse lesson drafts, mark uncertainty, and provide focused rerun hints.
 
-## 执行流程
+## Language Resolution Policy
 
-1. 读取输入资料并规范顺序。
-2. 调用 `ai-shifu-content-segmenter` 做清洗与语义分段。
-3. 生成课节切分候选，并保证单节单核心问题。
-4. 调用 `ai-shifu-lesson-script-generator` 生成逐节 MDF（强制应用可迁移教学骨架）。
-5. 汇总课节索引与变量总表。
-6. 执行强制门控，仅重算失败课节。
+Resolve target language with this strict priority:
+1. `explicit_output_language_request`
+2. `target_language_parameter`
+3. `session_language_preference`
+4. `prompt_language_detection`
+5. `source_material_dominant_language`
+6. `default_fallback_language`
 
-## 输入合同
+Use these optional control fields:
+- `target_language` (BCP-47 recommended, for example `fr-FR`, `ja-JP`, `zh-CN`)
+- `bilingual_output` (`true|false`)
+- `term_policy` (`preserve|translate|mixed`)
+- `quote_policy` (`translate_only|original_plus_translation`)
 
-至少满足以下之一：
-- 单份长逐字稿或课程文档。
-- 多份同主题文档，并提供顺序。
+Policy constraints:
+- Do not limit supported languages to a predefined set.
+- If explicit language output is requested, do not let mixed-source language override it.
 
-可选约束：
-- 目标学员画像。
-- 课节粒度（`short`、`medium`、`long`）。
-- 术语/语气/措辞保留要求。
+## Output Boundary
 
-详见 `references/input-contract.md`。
+- Final outputs start with learner-facing teaching content.
+- Authoring rules and pipeline notes stay in skill docs and references, not in lesson outputs.
 
-## 输出合同
+## Workflow
 
-输出内容：
-- 分节 MDF 文件（每节一份）。
-- 课程索引（lesson id、标题、核心问题、源片段映射）。
-- 全局变量总表（定义、用途、跨节引用）。
+1. Normalize source ordering and merge input material.
+2. Call `ai-shifu-content-segmenter` for cleanup and semantic segmentation.
+3. Generate lesson-cut candidates with one core question each.
+4. Call `ai-shifu-lesson-script-generator` for lesson-level MarkdownFlow scripts.
+5. Build course index and global variable table.
+6. Recompute only failed lessons through strict gating.
 
-详见 `references/output-contract.md`。
+## Input Contract
 
-## 强制门控
+At least one of the following is required:
+- A single long transcript or course document.
+- Multiple topic-aligned documents with ordering metadata.
 
-必须全部通过：
-- 代码块逐字符保留。
-- 图片链接与相对位置保留。
-- 单节只解决一个核心问题。
-- 每节至少一个合法 MDF 交互，且单节互动总数 <= 5。
-- 每节包含最小教学闭环：引导、讲解、交互、总结。
-- 每节采用“用户直达”授课语句，不输出流程旁白。
-- 每节至少包含一个“认知深化互动”（观点澄清/边界校准/反直觉提示）。
-- 行动型任务符合通用约束：当下可启动或明确后续模块联动。
-- 变量命名一致且可追踪。
-- 禁止未采集/未注入变量在正文占位输出（unknown 风险）。
-- 不把整节内容包进 `=== ===` 或 `!=== !===` 固定块。
-- 固定块只用于“必须原样输出”的核心信息（阈值、口径、处罚、步骤、证据字段）。
-- 图片若必须原样输出，使用单行固定语法逐条包裹：`===![原文配图X](https://resource.ai-shifu.cn/...)===`；不要用大段固定围栏包住整片正文。
-- 知识段落之间使用 `---` 保持讲述节奏。
-- 每次变量采集后必须有即时反馈并影响后续内容。
-- 核心知识点必须“图+文”配套：先给可视化任务，再给文字讲解图与机制边界解释，禁止只给图或只给文字。
-- 互动分布受控：单次连续采集不超过 3 个变量；单节互动总数不超过 5。
-- 课程级变量去重：同一门课内禁止重复采集同一变量；如需复采，必须明确“前后对比/阶段演进”目的。
-- 变量使用安全：未采集变量不得提前出现；已采集变量可在后续章节直接复用。
-- 教学表达必须面向用户：禁止在授课正文出现“全局变量/原文口径/收集变量/映射说明”等元约束词。
-- 互动题干必须具体：禁止抽象提问（如“澄清观点”）；必须写成可直接对话的问题句。
-- 结构灵活：按内容选择讲解结构，禁止机械套模板；信息密度不得低于源资料关键要点密度。
-- 语义去重审计：除变量名去重外，还要检查“同义互动问题”是否跨章节重复；若保留，必须标注“前后对照/阶段演进”目的。
-- 观点题分流：`*_viewpoint_check` 类互动禁止使用统一模板回复，必须按选项分叉反馈并落到下一步动作。
-- 互动有效性审计：每个互动变量都要在本节后文产生可见作用（分流、建议差异、交付物差异），不可只做记录。
+Optional constraints:
+- Learner persona.
+- Lesson granularity (`short`, `medium`, `long`).
+- Terminology and tone preservation requirements.
 
-详见 `references/preservation-rules.md`、`references/markdownflow-spec.md`。
+See `references/input-contract.md`.
 
-## MarkdownFlow 语法规范（必须遵守）
+## Output Contract
 
-1. 变量：
-- 用 `{{var_name}}` 引用变量；
-- 变量名不可含空格；
-- 未赋值变量默认 `"UNKNOWN"`。
+Return:
+- Lesson MarkdownFlow scripts (one file per lesson).
+- Course index (lesson id, title, core question, source mapping).
+- Global variable table (definition, use, cross-lesson references).
 
-2. 交互：
-- 单选：`?[%{{var}} 选项A | 选项B | 选项C]`
-- 多选：`?[%{{var}} 选项A || 选项B || 选项C]`
-- 输入：`?[%{{var}} ... 请输入]`
-- 按钮+输入：`?[%{{var}} 选项A | 选项B | ...其他，请填写]`
+See `references/output-contract.md`.
 
-3. 分镜：
-- 用 `---` 分隔模块；
-- 每个模块只完成一个明确目标。
+## Mandatory Gates
 
-4. 确定性输出：
-- 单行固定文本：`===固定文本===`
-- 多行固定文本围栏：
+All gates must pass:
+- Code blocks are preserved character-by-character.
+- Image links and relative placement are preserved.
+- Each lesson resolves one core question.
+- Each lesson contains at least one valid MarkdownFlow interaction, max five interactions total.
+- Each lesson includes a minimum teaching loop: setup, explanation, interaction, close.
+- Lesson language is learner-facing, not pipeline narration.
+- Each lesson includes at least one deepening interaction (calibration, boundary check, or counterintuitive prompt).
+- Action tasks are either immediately executable or explicitly linked to later modules.
+- Variable naming is consistent and traceable.
+- No unresolved placeholder variables in learner-facing text.
+- Do not wrap full lessons in deterministic blocks (`=== ===` or `!=== !===`).
+- Deterministic blocks are reserved for legally or operationally fixed statements only.
+- If an image must remain unchanged, use single-line deterministic syntax per image.
+- Use `---` between instructional blocks to keep pacing readable.
+- Every variable collection step must produce immediate feedback and downstream effect.
+- Core knowledge points require visual + textual explanation together.
+- Consecutive variable collection cannot exceed three variables.
+- Do not recollect the same variable unless explicitly marked as staged comparison.
+- Never reference uncollected variables.
+- Interaction prompts must be concrete and directly answerable.
+- Avoid repetitive interaction semantics across lessons unless comparison intent is explicit.
+- `*_viewpoint_check` interactions must branch by option and drive different next steps.
+- Every interaction variable must create visible downstream impact.
+
+See `references/preservation-rules.md` and `references/markdownflow-spec.md`.
+
+## MarkdownFlow Syntax (Required)
+
+1. Variables:
+- Use `{{var_name}}` for variable references.
+- Variable names cannot contain spaces.
+- Undefined variables default to `"UNKNOWN"`.
+
+2. Interactions:
+- Single-select: `?[%{{var}} Option A | Option B | Option C]`
+- Multi-select: `?[%{{var}} Option A || Option B || Option C]`
+- Input: `?[%{{var}} ... enter your answer]`
+- Button + input: `?[%{{var}} Option A | Option B | ...Other, please specify]`
+
+3. Segments:
+- Use `---` between segments.
+- Each segment should serve one clear instructional objective.
+
+4. Deterministic output:
+- Single-line fixed text: `===fixed text===`
+- Multi-line fixed text:
 ```md
 !===
-第1行
-第2行
+Line 1
+Line 2
 !===
 ```
 
-5. 普通内容写作原则：
-- 普通内容是“给AI的创作指令”，不是直接给读者的成文；
-- 禁止直接输出整篇文章正文，应指导AI生成正文。
+5. Authoring rule:
+- Regular content should guide generation behavior.
+- Do not output full polished learner prose as static text.
 
-## 回溯规则
+## Rerun Rules
 
-- 仅重算受影响课节。
-- 共享变量变更时，重算其依赖课节。
-- 源内容顺序全局变化时，才允许整课重算。
+- Recompute only impacted lessons.
+- Recompute dependency-linked lessons when shared variables change.
+- Recompute full course only when global source order changes.
 
-## 失败处理
+## Failure Handling
 
-当资料质量较差时：
-- 先输出粗粒度课节版本。
-- 显式标注不确定片段。
-- 按最佳可行方案继续生成，不中断流程。
+When source quality is weak:
+- Deliver coarse lesson drafts first.
+- Mark uncertain spans explicitly.
+- Continue with best-effort generation instead of stopping.
+
+## Validation Checkpoints
+
+- Lesson scripts, course index, and variable table are all present.
+- Code/image preservation is exact and position-safe.
+- One-core-question and interaction cap rules are satisfied per lesson.
+- No unresolved variables or no-op interactions remain.
+- Fallback outputs include explicit uncertainty markers and rerun hints.
+
+## Report Template
+
+See `references/report-template.md`.
+
+## Related Skills
+
+- Upstream cleanup: `ai-shifu-content-segmenter`
+- Downstream generation: `ai-shifu-lesson-script-generator`
+- Downstream optimization: `ai-shifu-lesson-script-optimizer`
+- Quality governance: `ai-shifu-skill-quality-optimizer`
+
+## Examples
+
+- `examples/minimal.md`
+- `examples/edge-case.md`

@@ -1,24 +1,25 @@
-# 输出合同
+# Output Contract
 
-## 核心产物
-- 分节 MDF 文件（每节一份，可直接授课）。
-- 带源映射的课节索引（章节号、标题、核心问题、源文件映射）。
-- 变量总表与跨节引用。
+## Required Artifacts
 
-## 结构要求
-- 每节从正式授课提示词开始。
-- 非用户元信息（教学目标/核心知识点/章节级交付物）使用 `<!-- -->`。
-- 每节包含最小教学闭环：开场、讲解、互动、交付物、总结与承接。
-- 默认包含本节封面图（SVG）。
-- 知识点段落之间使用 `---` 分隔。
+1. `lesson_mdf_scripts`
+- One MarkdownFlow file per lesson.
+- Learner-facing language only.
 
-## 质量要求
-- MDF 语法可运行。
-- 代码与图片位置保真。
-- 单节单核心问题。
-- 互动变量有效（采集后被使用并影响后续内容）。
-- 单节互动数量 <= 5（推荐 3-4）。
-- 不强制开头集中采集变量，变量应在内容决策点采集。
-- 每次互动后必须即时反馈并形成分流。
-- 禁止输出未采集/未注入变量占位（unknown 风险）。
-- 输入型变量建议格式：`?[%{{var}}...提示语]`。
+2. `course_index`
+- `lesson_id`
+- `lesson_title`
+- `core_question`
+- `source_span_map`
+
+3. `global_variable_table`
+- Variable name
+- Collection point
+- Downstream usage
+- Cross-lesson dependencies
+
+## Delivery Guarantees
+
+- Stable schema across reruns.
+- Deterministic references for lesson ids and source spans.
+- Partial rerun support for changed lessons.

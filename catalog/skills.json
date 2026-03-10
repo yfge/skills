@@ -1,0 +1,736 @@
+{
+  "total_skills": 5,
+  "skills": [
+    {
+      "schema_version": "1.0",
+      "name": "ai-shifu-content-segmenter",
+      "slug": "ai-shifu-content-segmenter",
+      "one_liner": "Clean transcripts and course docs into stable semantic lesson segments with structure preservation.",
+      "description": "Cleans noisy transcripts and course documents, then produces stable semantic lesson segments while preserving code, images, and key terminology.",
+      "category": "content-preprocessing",
+      "target_users": [
+        "Course content creators",
+        "Instructional designers",
+        "Learning experience engineers"
+      ],
+      "primary_problem": "Raw course material is noisy and inconsistent, making lesson generation unstable.",
+      "language_resolution": {
+        "allow_any_language": true,
+        "bcp47_recommended": true,
+        "priority": [
+          "explicit_output_language_request",
+          "target_language_parameter",
+          "session_language_preference",
+          "prompt_language_detection",
+          "source_material_dominant_language",
+          "default_fallback_language"
+        ],
+        "default_fallback_language": "en-US"
+      },
+      "inputs": [
+        {
+          "name": "raw_material",
+          "type": "text|markdown",
+          "required": true,
+          "description": "Raw transcript or course document text."
+        },
+        {
+          "name": "chapter_hint",
+          "type": "json",
+          "required": false,
+          "description": "Optional lesson order and granularity hints."
+        },
+        {
+          "name": "target_language",
+          "type": "text",
+          "required": false,
+          "description": "Requested output language tag (BCP-47 recommended, for example `fr-FR` or `ja-JP`)."
+        },
+        {
+          "name": "bilingual_output",
+          "type": "boolean",
+          "required": false,
+          "description": "Whether to output bilingual content instead of single-target language content."
+        },
+        {
+          "name": "term_policy",
+          "type": "text",
+          "required": false,
+          "description": "Terminology policy: `preserve`, `translate`, or `mixed`."
+        },
+        {
+          "name": "quote_policy",
+          "type": "text",
+          "required": false,
+          "description": "Quote policy: `translate_only` or `original_plus_translation`."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "structured_segments_json",
+          "type": "json",
+          "required": true,
+          "description": "Structured segments with source_span and segment_type fields."
+        },
+        {
+          "name": "preserve_block_index",
+          "type": "json",
+          "required": true,
+          "description": "Index of immutable code, image, and table blocks."
+        },
+        {
+          "name": "lesson_cut_candidates",
+          "type": "json",
+          "required": true,
+          "description": "Lesson boundary candidates with one core question each."
+        }
+      ],
+      "tech_stack": {
+        "languages": [
+          "markdown",
+          "yaml"
+        ],
+        "runtime": [
+          "codex-skill"
+        ]
+      },
+      "dependencies": {
+        "internal_skills": [],
+        "external_services": [],
+        "api_keys_required": false
+      },
+      "maturity": "beta",
+      "reusability_score": 4,
+      "docs_score": 5,
+      "demo": {
+        "type": "repo_example",
+        "url": "./skills/ai-shifu-content-segmenter/examples/minimal.md"
+      },
+      "keywords": {
+        "zh": [
+          "transcript cleanup",
+          "lesson segmentation",
+          "semantic chunking",
+          "structure preservation"
+        ],
+        "en": [
+          "transcript cleanup",
+          "lesson segmentation",
+          "semantic chunking",
+          "structure preservation"
+        ]
+      },
+      "triggers": {
+        "zh": [
+          "clean transcript and build lesson segments",
+          "preserve code and images before lesson split",
+          "semantic segmentation for noisy course material"
+        ],
+        "en": [
+          "clean transcript and build lesson segments",
+          "preserve code and images before lesson split",
+          "semantic segmentation for noisy course material"
+        ]
+      },
+      "related_skills": [
+        "ai-shifu-transcript-to-lessons",
+        "ai-shifu-lesson-script-generator",
+        "ai-shifu-skill-quality-optimizer"
+      ],
+      "aliases": {
+        "zh": [
+          "course material segmenter"
+        ],
+        "en": [
+          "course material segmenter"
+        ]
+      },
+      "owner": "ai-shifu",
+      "license": "UNLICENSED",
+      "last_verified_at": "2026-03-10",
+      "skill_path": "skills/ai-shifu-content-segmenter",
+      "skill_md_path": "skills/ai-shifu-content-segmenter/SKILL.md",
+      "openai_yaml_path": "skills/ai-shifu-content-segmenter/agents/openai.yaml"
+    },
+    {
+      "schema_version": "1.0",
+      "name": "ai-shifu-lesson-script-generator",
+      "slug": "ai-shifu-lesson-script-generator",
+      "one_liner": "Generate runnable lesson-level MarkdownFlow scripts from structured lesson inputs.",
+      "description": "Generates runnable lesson-level MarkdownFlow teaching prompts from structured lesson segments, with safe interaction logic and stable variable reuse.",
+      "category": "lesson-script-generation",
+      "target_users": [
+        "Instructional designers",
+        "Course content creators",
+        "Learning experience engineers"
+      ],
+      "primary_problem": "Convert structured lesson inputs into runnable, pedagogically coherent MarkdownFlow scripts.",
+      "language_resolution": {
+        "allow_any_language": true,
+        "bcp47_recommended": true,
+        "priority": [
+          "explicit_output_language_request",
+          "target_language_parameter",
+          "session_language_preference",
+          "prompt_language_detection",
+          "source_material_dominant_language",
+          "default_fallback_language"
+        ],
+        "default_fallback_language": "en-US"
+      },
+      "inputs": [
+        {
+          "name": "structured_lesson_segments",
+          "type": "json",
+          "required": true,
+          "description": "Preprocessed and segmented lesson data."
+        },
+        {
+          "name": "teaching_constraints",
+          "type": "json",
+          "required": false,
+          "description": "Constraints for pacing, interactions, and cross-lesson variable strategy."
+        },
+        {
+          "name": "target_language",
+          "type": "text",
+          "required": false,
+          "description": "Requested output language tag (BCP-47 recommended, for example `fr-FR` or `ja-JP`)."
+        },
+        {
+          "name": "bilingual_output",
+          "type": "boolean",
+          "required": false,
+          "description": "Whether to output bilingual content instead of single-target language content."
+        },
+        {
+          "name": "term_policy",
+          "type": "text",
+          "required": false,
+          "description": "Terminology policy: `preserve`, `translate`, or `mixed`."
+        },
+        {
+          "name": "quote_policy",
+          "type": "text",
+          "required": false,
+          "description": "Quote policy: `translate_only` or `original_plus_translation`."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lesson_mdf_script",
+          "type": "markdown",
+          "required": true,
+          "description": "Runnable single-lesson MarkdownFlow script."
+        },
+        {
+          "name": "used_variables",
+          "type": "json",
+          "required": true,
+          "description": "Variable collection and usage map for the lesson."
+        },
+        {
+          "name": "depends_on_lessons",
+          "type": "json",
+          "required": true,
+          "description": "Cross-lesson dependency metadata."
+        }
+      ],
+      "tech_stack": {
+        "languages": [
+          "markdown",
+          "yaml"
+        ],
+        "runtime": [
+          "codex-skill"
+        ]
+      },
+      "dependencies": {
+        "internal_skills": [],
+        "external_services": [],
+        "api_keys_required": false
+      },
+      "maturity": "beta",
+      "reusability_score": 4,
+      "docs_score": 5,
+      "demo": {
+        "type": "repo_example",
+        "url": "./skills/ai-shifu-lesson-script-generator/examples/minimal.md"
+      },
+      "keywords": {
+        "zh": [
+          "lesson script generation",
+          "markdownflow prompts",
+          "teaching interaction design",
+          "variable reuse"
+        ],
+        "en": [
+          "lesson script generation",
+          "markdownflow prompts",
+          "teaching interaction design",
+          "variable reuse"
+        ]
+      },
+      "triggers": {
+        "zh": [
+          "generate markdownflow script per lesson",
+          "turn structured segments into teaching prompts",
+          "create runnable lesson script from outline"
+        ],
+        "en": [
+          "generate markdownflow script per lesson",
+          "turn structured segments into teaching prompts",
+          "create runnable lesson script from outline"
+        ]
+      },
+      "related_skills": [
+        "ai-shifu-content-segmenter",
+        "ai-shifu-transcript-to-lessons",
+        "ai-shifu-lesson-script-optimizer",
+        "ai-shifu-skill-quality-optimizer"
+      ],
+      "aliases": {
+        "zh": [
+          "lesson script generator"
+        ],
+        "en": [
+          "lesson script generator"
+        ]
+      },
+      "owner": "ai-shifu",
+      "license": "UNLICENSED",
+      "last_verified_at": "2026-03-10",
+      "skill_path": "skills/ai-shifu-lesson-script-generator",
+      "skill_md_path": "skills/ai-shifu-lesson-script-generator/SKILL.md",
+      "openai_yaml_path": "skills/ai-shifu-lesson-script-generator/agents/openai.yaml"
+    },
+    {
+      "schema_version": "1.0",
+      "name": "ai-shifu-lesson-script-optimizer",
+      "slug": "ai-shifu-lesson-script-optimizer",
+      "one_liner": "Audit and optimize existing MarkdownFlow teaching prompts while preserving runtime stability.",
+      "description": "Audits and improves existing MarkdownFlow teaching prompts to fix coverage gaps, interaction quality, and variable or syntax stability issues.",
+      "category": "lesson-script-optimization",
+      "target_users": [
+        "Instructional designers",
+        "Course content creators",
+        "Learning quality reviewers"
+      ],
+      "primary_problem": "Existing scripts can miss source points or contain unstable interactions and variable logic.",
+      "language_resolution": {
+        "allow_any_language": true,
+        "bcp47_recommended": true,
+        "priority": [
+          "explicit_output_language_request",
+          "target_language_parameter",
+          "session_language_preference",
+          "prompt_language_detection",
+          "source_material_dominant_language",
+          "default_fallback_language"
+        ],
+        "default_fallback_language": "en-US"
+      },
+      "inputs": [
+        {
+          "name": "existing_mdf_script",
+          "type": "markdown",
+          "required": true,
+          "description": "Current teaching script to audit and improve."
+        },
+        {
+          "name": "source_course_material",
+          "type": "text|markdown|json",
+          "required": true,
+          "description": "Source material for coverage and meaning validation."
+        },
+        {
+          "name": "optimization_constraints",
+          "type": "json",
+          "required": false,
+          "description": "Rules for interaction limits and cross-lesson dependency behavior."
+        },
+        {
+          "name": "target_language",
+          "type": "text",
+          "required": false,
+          "description": "Requested output language tag (BCP-47 recommended, for example `fr-FR` or `ja-JP`)."
+        },
+        {
+          "name": "bilingual_output",
+          "type": "boolean",
+          "required": false,
+          "description": "Whether to output bilingual content instead of single-target language content."
+        },
+        {
+          "name": "term_policy",
+          "type": "text",
+          "required": false,
+          "description": "Terminology policy: `preserve`, `translate`, or `mixed`."
+        },
+        {
+          "name": "quote_policy",
+          "type": "text",
+          "required": false,
+          "description": "Quote policy: `translate_only` or `original_plus_translation`."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "optimized_mdf_script",
+          "type": "markdown",
+          "required": true,
+          "description": "Improved runnable MarkdownFlow script."
+        },
+        {
+          "name": "risk_and_issue_report",
+          "type": "json",
+          "required": true,
+          "description": "Risk report covering gaps, drift, interaction, and syntax issues."
+        },
+        {
+          "name": "change_list",
+          "type": "json",
+          "required": true,
+          "description": "Grouped change list by issue class."
+        }
+      ],
+      "tech_stack": {
+        "languages": [
+          "markdown",
+          "yaml"
+        ],
+        "runtime": [
+          "codex-skill"
+        ]
+      },
+      "dependencies": {
+        "internal_skills": [],
+        "external_services": [],
+        "api_keys_required": false
+      },
+      "maturity": "beta",
+      "reusability_score": 4,
+      "docs_score": 5,
+      "demo": {
+        "type": "repo_example",
+        "url": "./skills/ai-shifu-lesson-script-optimizer/examples/minimal.md"
+      },
+      "keywords": {
+        "zh": [
+          "script optimization",
+          "coverage audit",
+          "interaction branching",
+          "variable stability"
+        ],
+        "en": [
+          "script optimization",
+          "coverage audit",
+          "interaction branching",
+          "variable stability"
+        ]
+      },
+      "triggers": {
+        "zh": [
+          "audit and optimize an existing markdownflow script",
+          "find missing points against source material",
+          "fix variable and syntax risk in teaching prompts"
+        ],
+        "en": [
+          "audit and optimize an existing markdownflow script",
+          "find missing points against source material",
+          "fix variable and syntax risk in teaching prompts"
+        ]
+      },
+      "related_skills": [
+        "ai-shifu-lesson-script-generator",
+        "ai-shifu-transcript-to-lessons",
+        "ai-shifu-skill-quality-optimizer"
+      ],
+      "aliases": {
+        "zh": [
+          "lesson script optimizer"
+        ],
+        "en": [
+          "lesson script optimizer"
+        ]
+      },
+      "owner": "ai-shifu",
+      "license": "UNLICENSED",
+      "last_verified_at": "2026-03-10",
+      "skill_path": "skills/ai-shifu-lesson-script-optimizer",
+      "skill_md_path": "skills/ai-shifu-lesson-script-optimizer/SKILL.md",
+      "openai_yaml_path": "skills/ai-shifu-lesson-script-optimizer/agents/openai.yaml"
+    },
+    {
+      "schema_version": "1.0",
+      "name": "ai-shifu-skill-quality-optimizer",
+      "slug": "ai-shifu-skill-quality-optimizer",
+      "one_liner": "Audit and improve skill repository quality with blocker-first remediation and regression checks.",
+      "description": "Audits and improves skill repository quality with issue severity grading, minimal safe remediation, and regression validation.",
+      "category": "quality-assurance",
+      "target_users": [
+        "Skill library maintainers",
+        "Learning workflow engineers",
+        "AI operations owners"
+      ],
+      "primary_problem": "Without a stable quality loop, skill metadata and execution consistency drift over time.",
+      "inputs": [
+        {
+          "name": "skill_scope",
+          "type": "text|json",
+          "required": true,
+          "description": "Skill set to audit: one skill or the entire repository."
+        },
+        {
+          "name": "optimization_policy",
+          "type": "json",
+          "required": false,
+          "description": "Constraints such as blocker-only mode or strict edit scope."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "quality_issue_list",
+          "type": "json",
+          "required": true,
+          "description": "Issue list grouped by blocker and suggestion severity."
+        },
+        {
+          "name": "remediation_plan",
+          "type": "markdown",
+          "required": true,
+          "description": "Minimal safe remediation plan with priority order."
+        },
+        {
+          "name": "regression_result",
+          "type": "json",
+          "required": true,
+          "description": "Regression command outcomes and pass status."
+        }
+      ],
+      "tech_stack": {
+        "languages": [
+          "markdown",
+          "yaml",
+          "python"
+        ],
+        "runtime": [
+          "codex-skill"
+        ]
+      },
+      "dependencies": {
+        "internal_skills": [],
+        "external_services": [],
+        "api_keys_required": false
+      },
+      "maturity": "beta",
+      "reusability_score": 5,
+      "docs_score": 5,
+      "demo": {
+        "type": "repo_example",
+        "url": "./skills/ai-shifu-skill-quality-optimizer/examples/minimal.md"
+      },
+      "keywords": {
+        "zh": [
+          "skill quality audit",
+          "repository governance",
+          "regression validation",
+          "blocker remediation"
+        ],
+        "en": [
+          "skill quality audit",
+          "repository governance",
+          "regression validation",
+          "blocker remediation"
+        ]
+      },
+      "triggers": {
+        "zh": [
+          "improve skill repository quality",
+          "audit skills and fix blockers",
+          "run quality gate and remediation"
+        ],
+        "en": [
+          "improve skill repository quality",
+          "audit skills and fix blockers",
+          "run quality gate and remediation"
+        ]
+      },
+      "related_skills": [
+        "ai-shifu-content-segmenter",
+        "ai-shifu-transcript-to-lessons",
+        "ai-shifu-lesson-script-generator",
+        "ai-shifu-lesson-script-optimizer"
+      ],
+      "aliases": {
+        "zh": [
+          "skill quality optimizer"
+        ],
+        "en": [
+          "skill quality optimizer"
+        ]
+      },
+      "owner": "ai-shifu",
+      "license": "UNLICENSED",
+      "last_verified_at": "2026-03-10",
+      "skill_path": "skills/ai-shifu-skill-quality-optimizer",
+      "skill_md_path": "skills/ai-shifu-skill-quality-optimizer/SKILL.md",
+      "openai_yaml_path": "skills/ai-shifu-skill-quality-optimizer/agents/openai.yaml"
+    },
+    {
+      "schema_version": "1.0",
+      "name": "ai-shifu-transcript-to-lessons",
+      "slug": "ai-shifu-transcript-to-lessons",
+      "one_liner": "Convert transcripts or long documents into lesson-by-lesson MarkdownFlow teaching scripts.",
+      "description": "Converts long-form transcripts or course documents into lesson-by-lesson MarkdownFlow teaching scripts with stable structure, preserved artifacts, and reusable variables.",
+      "category": "lesson-orchestration",
+      "target_users": [
+        "Course content creators",
+        "Instructional designers",
+        "Learning experience engineers"
+      ],
+      "primary_problem": "Turn noisy source material into stable, runnable lesson scripts at scale.",
+      "language_resolution": {
+        "allow_any_language": true,
+        "bcp47_recommended": true,
+        "priority": [
+          "explicit_output_language_request",
+          "target_language_parameter",
+          "session_language_preference",
+          "prompt_language_detection",
+          "source_material_dominant_language",
+          "default_fallback_language"
+        ],
+        "default_fallback_language": "en-US"
+      },
+      "inputs": [
+        {
+          "name": "course_material",
+          "type": "text|markdown",
+          "required": true,
+          "description": "Transcript or long-form source document set."
+        },
+        {
+          "name": "generation_constraints",
+          "type": "json",
+          "required": false,
+          "description": "Persona, pacing, terminology, and lesson-size constraints."
+        },
+        {
+          "name": "target_language",
+          "type": "text",
+          "required": false,
+          "description": "Requested output language tag (BCP-47 recommended, for example `fr-FR` or `ja-JP`)."
+        },
+        {
+          "name": "bilingual_output",
+          "type": "boolean",
+          "required": false,
+          "description": "Whether to output bilingual content instead of single-target language content."
+        },
+        {
+          "name": "term_policy",
+          "type": "text",
+          "required": false,
+          "description": "Terminology policy: `preserve`, `translate`, or `mixed`."
+        },
+        {
+          "name": "quote_policy",
+          "type": "text",
+          "required": false,
+          "description": "Quote policy: `translate_only` or `original_plus_translation`."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lesson_mdf_scripts",
+          "type": "markdown_bundle",
+          "required": true,
+          "description": "Lesson-by-lesson MarkdownFlow scripts."
+        },
+        {
+          "name": "course_index",
+          "type": "json",
+          "required": true,
+          "description": "Lesson map with core questions and source references."
+        },
+        {
+          "name": "global_variable_table",
+          "type": "json",
+          "required": true,
+          "description": "Global variable definitions and cross-lesson usage map."
+        }
+      ],
+      "tech_stack": {
+        "languages": [
+          "markdown",
+          "yaml"
+        ],
+        "runtime": [
+          "codex-skill"
+        ]
+      },
+      "dependencies": {
+        "internal_skills": [
+          "ai-shifu-content-segmenter",
+          "ai-shifu-lesson-script-generator"
+        ],
+        "external_services": [],
+        "api_keys_required": false
+      },
+      "maturity": "beta",
+      "reusability_score": 4,
+      "docs_score": 5,
+      "demo": {
+        "type": "repo_example",
+        "url": "./skills/ai-shifu-transcript-to-lessons/examples/minimal.md"
+      },
+      "keywords": {
+        "zh": [
+          "transcript conversion",
+          "lesson orchestration",
+          "markdownflow pipeline",
+          "course indexing"
+        ],
+        "en": [
+          "transcript conversion",
+          "lesson orchestration",
+          "markdownflow pipeline",
+          "course indexing"
+        ]
+      },
+      "triggers": {
+        "zh": [
+          "convert transcript to lesson scripts",
+          "turn course docs into markdownflow lessons",
+          "build lesson by lesson teaching prompts"
+        ],
+        "en": [
+          "convert transcript to lesson scripts",
+          "turn course docs into markdownflow lessons",
+          "build lesson by lesson teaching prompts"
+        ]
+      },
+      "related_skills": [
+        "ai-shifu-content-segmenter",
+        "ai-shifu-lesson-script-generator",
+        "ai-shifu-lesson-script-optimizer",
+        "ai-shifu-skill-quality-optimizer"
+      ],
+      "aliases": {
+        "zh": [
+          "transcript to lessons"
+        ],
+        "en": [
+          "transcript to lessons"
+        ]
+      },
+      "owner": "ai-shifu",
+      "license": "UNLICENSED",
+      "last_verified_at": "2026-03-10",
+      "skill_path": "skills/ai-shifu-transcript-to-lessons",
+      "skill_md_path": "skills/ai-shifu-transcript-to-lessons/SKILL.md",
+      "openai_yaml_path": "skills/ai-shifu-transcript-to-lessons/agents/openai.yaml"
+    }
+  ]
+}

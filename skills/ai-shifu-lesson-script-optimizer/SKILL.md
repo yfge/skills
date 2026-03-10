@@ -1,128 +1,172 @@
 ---
 name: ai-shifu-lesson-script-optimizer
-description: 审计并优化现有 MarkdownFlow 授课提示词，确保与课程资料一致、教学逻辑清晰、互动可执行、变量与语法稳定。Use when user asks to review/optimize MDF teaching prompts, check missing points against source materials, or align chapters with exemplar teaching design.
+description: Audits and improves existing MarkdownFlow teaching prompts to fix coverage gaps, interaction quality, and variable or syntax stability issues.
 ---
 
-# MDF 授课提示词优化器
+# Lesson Script Optimizer
 
-用于“已有授课提示词”的系统优化，不是从零写新课。
+Systematically improve existing MarkdownFlow teaching prompts. This skill is not for writing a full course from scratch.
 
-## 何时使用
+## Execution Modes
 
-- 用户要求“检查是否漏讲”“对照课程资料补全”。
-- 用户要求“按示例优化教学设计与讲述技巧”。
-- 用户要求“统一多章节风格并降低运行报错风险”。
+- Standard mode (default): Source material and current scripts are both available; run full coverage audit and targeted edits.
+- Fallback mode: Source material is missing or incomplete; prioritize syntax stability, variable safety, and high-risk interaction fixes.
 
-## 输入最小集
+## Language Resolution Policy
 
-- 课程资料（原文/逐字稿/教案卡片至少一类）。
-- 当前授课提示词（单章或全章）。
-- 约束偏好（例如：是否允许跨章变量承接）。
+Resolve target language with this strict priority:
+1. `explicit_output_language_request`
+2. `target_language_parameter`
+3. `session_language_preference`
+4. `prompt_language_detection`
+5. `source_material_dominant_language`
+6. `default_fallback_language`
 
-## 核心方法论（压缩版）
+Use these optional control fields:
+- `target_language` (BCP-47 recommended, for example `fr-FR`, `ja-JP`, `zh-CN`)
+- `bilingual_output` (`true|false`)
+- `term_policy` (`preserve|translate|mixed`)
+- `quote_policy` (`translate_only|original_plus_translation`)
 
-1. 开场低门槛进入：封面图 + 1个轻互动变量。
-2. 先分层后讲解：互动变量必须改变后续内容。
-3. 结构内容驱动：按本节知识特性组织讲解，不机械套统一模板。
-4. 证据链推进：现象/历史 -> 机制/数据 -> 结论（可先给结论，但必须补证据链）。
-5. 可视化承载抽象：关键概念必须有 SVG/HTML 图与约束。
-6. 观点澄清：复述 -> 边界 -> 反直觉提醒。
-7. 风险纠偏：至少3个误判 + 1个立即修正动作。
-8. 交付物可执行：至少1个可复用交付物，建议附“参考填法”。
-9. 语法与变量稳定：交互语法一致，变量命名统一且可执行。
+Output rule:
+- Optimized learner-facing script output must follow resolved target language unless `bilingual_output` is true.
 
-## 高标准约束（通用）
+## When to Use
 
-- 段落节奏：知识点段落之间使用 `---` 做节奏区隔。
-- 开场要求：默认包含本节封面图（SVG）。
-- 互动数量：单节最多 5 个互动，推荐 3-4 个。
-- 互动位置：不强制开头集中采集；应放在“需要分流/需要决策”的位置。
-- 互动有效性：每次采集后必须“即时反馈 + 后续分流”。
-- 连续采集上限：单次连续采集不超过 3 个变量，超出需先反馈再继续。
-- 变量安全：禁止出现未采集/未注入变量（避免 unknown 占位）。
-- 全局变量策略：全局变量在全课程均匀采集，不在单节集中采满。
-- 变量去重：同一门课禁止重复采集同一变量；如需复采，必须用于“前后对比/阶段演进”并写明目的。
-- 语义去重：不同变量名但问题语义相同/高度相近也视作重复，除非明确承担“前后对照”功能。
-- 输入型变量语法：统一使用 `?[%{{var}}...提示语]`。
-- 结尾策略：按章节特性收束，可用总结型结尾，不强制交互式结尾。
-- 图文协同：图用于压缩抽象，文用于解释机制，避免图文重复。
-- 核心知识点必须图文配合：每个核心点需明确“先图后文”，避免只有图或只有文字。
-- 表达去元术语：授课正文不得出现“原文口径/全局变量/收集变量/映射说明”等制作侧词汇。
-- 问题具体化：把抽象互动改成具体问题句，确保模型可直接向用户提问并讲清信息。
-- 观点题分叉：`*_viewpoint_check` 禁止统一模板反馈，必须按选项分叉并给到不同纠偏建议。
-- 结构灵活：禁止机械套统一讲解结构，按章节内容选择最合适的讲述路径。
-- 信息密度约束：优化后信息密度不得低于源资料关键点覆盖密度，不得通过删点换流畅。
+- You need gap analysis against source material.
+- You need script quality upgrades without full rewrites.
+- You need consistent chapter style with lower runtime failure risk.
 
-## MarkdownFlow 语法规范（必须遵守）
+## Minimum Inputs
 
-1. 变量：
-- 用 `{{var_name}}` 引用变量；
-- 变量名不可含空格；
-- 未赋值变量默认 `"UNKNOWN"`。
+- Source material (transcript, notes, or structured lesson assets).
+- Existing teaching script(s), one lesson or full course.
+- Optional constraints (for example, whether cross-lesson variable carryover is allowed).
 
-2. 交互：
-- 单选：`?[%{{var}} 选项A | 选项B | 选项C]`
-- 多选：`?[%{{var}} 选项A || 选项B || 选项C]`
-- 输入：`?[%{{var}} ... 请输入]`
-- 按钮+输入：`?[%{{var}} 选项A | 选项B | ...其他，请填写]`
+## Core Method
 
-3. 分镜：
-- 用 `---` 分隔模块；
-- 每个模块只完成一个明确目标。
+1. Start with a low-friction entry point (cover visual + one light interaction).
+2. Ensure interactions change downstream logic.
+3. Keep structure content-driven, not template-driven.
+4. Build evidence chain: observation/history -> mechanism/data -> conclusion.
+5. Use visuals for abstract structure and text for mechanism + boundaries.
+6. Add viewpoint calibration with branching feedback.
+7. Include concrete correction actions for major misconceptions.
+8. Keep deliverables executable and reusable.
+9. Stabilize syntax and variable usage.
 
-4. 确定性输出：
-- 单行固定文本：`===固定文本===`
-- 多行固定文本围栏：
+## High-Standard Constraints
+
+- Separate knowledge blocks with `---`.
+- Include a lesson cover visual by default.
+- Keep max interactions per lesson at five (recommended three to four).
+- Place interactions at decision points, not only at lesson start.
+- Every interaction must trigger immediate feedback plus downstream effect.
+- Limit consecutive variable collection to three.
+- No uncollected variables in learner-facing text.
+- Spread global variable collection across lessons.
+- Do not recollect the same variable unless marked as staged comparison.
+- Treat semantic duplicates as duplicates even if variable names differ.
+- Use stable input syntax: `?[%{{var}}...prompt]`.
+- Keep ending structure lesson-appropriate; interactive endings are optional.
+- Every core concept needs visual-plus-text explanation.
+- Avoid internal authoring terms in learner-facing copy.
+- Keep prompts concrete and answerable.
+- `*_viewpoint_check` interactions must branch by option.
+- Preserve source information density; do not trade substance for fluency.
+
+## MarkdownFlow Syntax (Required)
+
+1. Variables:
+- Use `{{var_name}}`.
+- Variable names cannot contain spaces.
+- Undefined variables default to `"UNKNOWN"`.
+
+2. Interactions:
+- Single-select: `?[%{{var}} Option A | Option B | Option C]`
+- Multi-select: `?[%{{var}} Option A || Option B || Option C]`
+- Input: `?[%{{var}} ... enter your answer]`
+- Button + input: `?[%{{var}} Option A | Option B | ...Other, please specify]`
+
+3. Segments:
+- Use `---` between modules.
+- Keep one objective per module.
+
+4. Deterministic output:
+- Single-line fixed text: `===fixed text===`
+- Multi-line fixed text:
 ```md
 !===
-第1行
-第2行
+Line 1
+Line 2
 !===
 ```
 
-5. 普通内容写作原则：
-- 普通内容是“给AI的创作指令”，不是直接给读者的成文；
-- 禁止直接输出整篇文章正文，应指导AI生成正文。
+5. Authoring principle:
+- Regular text should guide generation behavior.
+- Avoid outputting full polished article content as fixed prose.
 
-详细说明见 `references/methodology.md`。
+See `references/methodology.md`.
 
-## 优化工作流
+## Optimization Workflow
 
-1. 对齐范围：明确“本次优化是单章还是全章”。
-2. 建覆盖矩阵：逐章比对“资料要点 -> 提示词段落”。
-3. 标注问题类型：
-- `漏讲`
-- `偏义`
-- `讲法不清`
-- `互动无分流`
-- `图形约束不足`
-- `变量/语法风险`
-4. 小步改写：优先最小改动补齐关键缺口，避免整章重写。
-5. 运行前自检：按检查清单逐项验证。
-6. 图文一致性复检：逐节确认“核心知识点均有图文配对”，并清理失效图片占位。
-7. 变量复检：输出课程级变量总表，检查重复采集、提前引用、调用次数。
-8. 语义复检：输出“相似互动题”清单，标记是否存在对照目的与分流价值。
-9. 分流复检：逐个 `viewpoint_check` 检查是否“按选项分叉反馈 + 触发后续动作”。
+1. Define scope (single lesson vs full course).
+2. Build coverage matrix: source points -> script coverage.
+3. Label issue classes:
+- `coverage_gap`
+- `meaning_shift`
+- `explanation_clarity`
+- `interaction_no_branching`
+- `visual_constraints_missing`
+- `variable_or_syntax_risk`
+4. Apply smallest safe edits first.
+5. Run checklist validation before final output.
+6. Re-check visual-text pairing for every core concept.
+7. Re-check variable lifecycle (collection, reference timing, reuse).
+8. Re-check semantic duplication in interaction prompts.
+9. Re-check viewpoint branching and downstream action coupling.
 
-检查清单见 `references/review-checklist.md`。
+See `references/review-checklist.md`.
 
-## 强制输出规范
+## Required Output Style
 
-- 对用户先给“结论与风险等级”，再给“改动点清单”。
-- 文件级引用必须可定位到路径。
-- 若存在“同名多目录版本”，必须同步或明确主版本。
-- 若用户明确禁止跨章关联：
-- 删除开头回顾和结尾预告中的章节依赖。
-- 去掉“作为第X节输入”表述。
-- 避免使用未注入的跨章变量。
+- Present conclusion and risk level first.
+- Then provide grouped change list by issue class.
+- Use file-level references for traceability.
+- If duplicate script versions exist, declare the authoritative one.
+- If cross-lesson dependency is disallowed, remove dependency text and unbound carryover variables.
 
-## 常见坑
+## Common Failure Patterns
 
-- 只改结构不补资料细节，导致“形式正确、内容空心”。
-- 过度抽象导致术语漂移，偏离原文原意。
-- 保留了隐性跨章变量，运行时报错。
-- 互动题干写得太抽象，模型难以执行。
-- 观点题虽然有选项，但反馈仍然套同一模板，导致分流无效。
-- 用不同变量名重复提问同一问题，用户感知为“重复作答”。
-- 图形任务存在但缺少文字讲解，造成“只看图不理解机制”。
-- 为了模板统一牺牲章节特性，导致讲解死板。
+- Structural edits without content-depth recovery.
+- Over-abstraction that drifts from source meaning.
+- Hidden cross-lesson variables causing runtime failures.
+- Vague prompts that models cannot execute reliably.
+- Viewpoint options that still return identical feedback.
+- Repeated semantic questions with different variable names.
+- Visual tasks without explanatory text.
+- Rigid template consistency at the cost of lesson specificity.
+
+## Validation Checkpoints
+
+- Conclusion and risk level are presented first.
+- Five issue classes are fully audited.
+- `viewpoint_check` interactions branch and trigger distinct next actions.
+- Uncollected variable references and semantic duplicate interactions are removed.
+- Output remains runnable with no loss of source information density.
+
+## Report Template
+
+See `references/report-template.md`.
+
+## Related Skills
+
+- Upstream preprocessing: `ai-shifu-content-segmenter`
+- Upstream orchestration: `ai-shifu-transcript-to-lessons`
+- Upstream generation: `ai-shifu-lesson-script-generator`
+- Quality governance: `ai-shifu-skill-quality-optimizer`
+
+## Examples
+
+- `examples/minimal.md`
+- `examples/edge-case.md`

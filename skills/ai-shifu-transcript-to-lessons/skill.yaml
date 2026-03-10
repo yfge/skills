@@ -1,0 +1,111 @@
+schema_version: "1.0"
+name: "ai-shifu-transcript-to-lessons"
+slug: "ai-shifu-transcript-to-lessons"
+one_liner: "Convert transcripts or long documents into lesson-by-lesson MarkdownFlow teaching scripts."
+description: "Converts long-form transcripts or course documents into lesson-by-lesson MarkdownFlow teaching scripts with stable structure, preserved artifacts, and reusable variables."
+category: "lesson-orchestration"
+target_users:
+  - "Course content creators"
+  - "Instructional designers"
+  - "Learning experience engineers"
+primary_problem: "Turn noisy source material into stable, runnable lesson scripts at scale."
+language_resolution:
+  allow_any_language: true
+  bcp47_recommended: true
+  priority:
+    - "explicit_output_language_request"
+    - "target_language_parameter"
+    - "session_language_preference"
+    - "prompt_language_detection"
+    - "source_material_dominant_language"
+    - "default_fallback_language"
+  default_fallback_language: "en-US"
+inputs:
+  - name: "course_material"
+    type: "text|markdown"
+    required: true
+    description: "Transcript or long-form source document set."
+  - name: "generation_constraints"
+    type: "json"
+    required: false
+    description: "Persona, pacing, terminology, and lesson-size constraints."
+  - name: "target_language"
+    type: "text"
+    required: false
+    description: "Requested output language tag (BCP-47 recommended, for example `fr-FR` or `ja-JP`)."
+  - name: "bilingual_output"
+    type: "boolean"
+    required: false
+    description: "Whether to output bilingual content instead of single-target language content."
+  - name: "term_policy"
+    type: "text"
+    required: false
+    description: "Terminology policy: `preserve`, `translate`, or `mixed`."
+  - name: "quote_policy"
+    type: "text"
+    required: false
+    description: "Quote policy: `translate_only` or `original_plus_translation`."
+outputs:
+  - name: "lesson_mdf_scripts"
+    type: "markdown_bundle"
+    required: true
+    description: "Lesson-by-lesson MarkdownFlow scripts."
+  - name: "course_index"
+    type: "json"
+    required: true
+    description: "Lesson map with core questions and source references."
+  - name: "global_variable_table"
+    type: "json"
+    required: true
+    description: "Global variable definitions and cross-lesson usage map."
+tech_stack:
+  languages:
+    - "markdown"
+    - "yaml"
+  runtime:
+    - "codex-skill"
+dependencies:
+  internal_skills:
+    - "ai-shifu-content-segmenter"
+    - "ai-shifu-lesson-script-generator"
+  external_services: []
+  api_keys_required: false
+maturity: "beta"
+reusability_score: 4
+docs_score: 5
+demo:
+  type: "repo_example"
+  url: "./skills/ai-shifu-transcript-to-lessons/examples/minimal.md"
+keywords:
+  zh:
+    - "transcript conversion"
+    - "lesson orchestration"
+    - "markdownflow pipeline"
+    - "course indexing"
+  en:
+    - "transcript conversion"
+    - "lesson orchestration"
+    - "markdownflow pipeline"
+    - "course indexing"
+triggers:
+  zh:
+    - "convert transcript to lesson scripts"
+    - "turn course docs into markdownflow lessons"
+    - "build lesson by lesson teaching prompts"
+  en:
+    - "convert transcript to lesson scripts"
+    - "turn course docs into markdownflow lessons"
+    - "build lesson by lesson teaching prompts"
+related_skills:
+  - "ai-shifu-content-segmenter"
+  - "ai-shifu-lesson-script-generator"
+  - "ai-shifu-lesson-script-optimizer"
+  - "ai-shifu-skill-quality-optimizer"
+aliases:
+  zh:
+    - "transcript to lessons"
+  en:
+    - "transcript to lessons"
+owner: "ai-shifu"
+license: "UNLICENSED"
+last_verified_at: "2026-03-10"

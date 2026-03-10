@@ -1,17 +1,35 @@
-# 输入合同
+# Input Contract
 
-## 必填（满足其一）
-- 单份逐字稿或长课程文档。
-- 多份同主题文档（含顺序）。
-- 已有章节资料集合（如 `1.md` 到 `11.md`、`6/6.1/6.2` 这类子章节）。
+## Required
 
-## 选填
-- 学员画像。
-- 课节粒度偏好（short/medium/long）。
-- 保真约束（术语、语气、图表位置）。
-- 教学设计约束（交付物类型、变量策略、章节联动要求）。
+Provide one of:
+- A single long transcript or course document.
+- A set of topic-aligned documents with intended order.
 
-## 默认假设
-- 若未声明，按资料原顺序作为教学顺序。
-- 若存在子章节编号（如 `6.1`、`6.2`），默认并入主章节并在该节内完整覆盖。
-- 若存在“0. 教学目标和整体大纲”，默认作为全课程对齐约束。
+## Optional
+
+- Learner persona.
+- Lesson granularity preference (`short`, `medium`, `long`).
+- Terminology and tone constraints.
+- Non-negotiable source fragments.
+- `target_language` (BCP-47 recommended, for example `fr-FR`, `ja-JP`, `zh-CN`).
+- `bilingual_output` (`true|false`).
+- `term_policy` (`preserve|translate|mixed`).
+- `quote_policy` (`translate_only|original_plus_translation`).
+
+## Language Resolution Priority
+
+If language signals conflict, resolve with this strict order:
+1. explicit output language request
+2. `target_language` parameter
+3. session language preference
+4. prompt language detection
+5. source-material dominant language
+6. default fallback language (`en-US`)
+
+## Validation Rules
+
+- Input files must be readable text or markdown.
+- If multiple files are provided, ordering must be explicit.
+- Source language and expected output language should be specified when multilingual content exists.
+- Explicit output language requests must not be overridden by source-language mixes.

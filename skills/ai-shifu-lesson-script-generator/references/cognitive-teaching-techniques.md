@@ -1,35 +1,22 @@
-# 认知类教学技巧（通用）
+# Cognitive Teaching Techniques
 
-用于认知类内容（观点、框架、范式）讲解时，避免“听懂但不会用”。
+## Objective
 
-## 1. 旧认知到新认知
+Increase learner understanding through targeted cognitive moves rather than information dumping.
 
-- 先让用户说出当前观点。
-- 再解释旧观点在何种条件下成立。
-- 再指出条件变化后应如何更新判断。
+## Recommended Moves
 
-## 2. 冲突具体化
+1. Calibration prompt
+- Ask learners to make a concrete judgment before explanation.
 
-- 认知冲突必须落在用户可感知的现实矛盾。
-- 避免抽象口号式表达。
+2. Boundary framing
+- Clarify where the concept works and where it breaks.
 
-## 3. 边界显式化
+3. Counterintuitive contrast
+- Introduce a surprising but valid case to deepen mental models.
 
-- 每个结论都应给出成立边界与失效边界。
-- 避免用户把局部结论误解为普适真理。
+4. Action translation
+- Turn conceptual understanding into an immediately executable step.
 
-## 4. 反直觉提示
-
-- 至少给1个反直觉提醒，用于打破惯性思路。
-
-## 5. 互动反馈三步法
-
-每次观点类互动后，固定三步：
-1. 复述用户观点。
-2. 指出其成立边界。
-3. 给出下一步修正动作。
-
-## 6. 验证导向
-
-- 行动任务用于验证方向与假设，不直接承诺结果。
-- 即使失败，也要产出可复用结论（失败原因与下一轮假设）。
+5. Reflection loop
+- Ask learners to compare current understanding with prior assumptions.

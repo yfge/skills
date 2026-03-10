@@ -1,43 +1,24 @@
-# 示例教学特点（可迁移）
+# Example Teaching Patterns
 
-本文件抽象“markdownflow 授课提示词示例-1”的教学结构，供其他章节复用。
+## Pattern A: Evidence Chain
 
-## 1. 用户直达开场
+1. Observable phenomenon
+2. Mechanism explanation
+3. Practical implication
+4. Learner interaction
+5. Summary and action
 
-- 直接“向用户打招呼 + 说明本节收益”。
-- 不写流程化标题，不写制作说明。
+## Pattern B: Misconception Repair
 
-## 2. 起点分层
+1. Surface common misconception
+2. Explain why it sounds plausible
+3. Correct with mechanism and boundary
+4. Run interaction check
+5. Apply corrected model to a real case
 
-- 先收一个认知变量（如了解程度），再收一个身份变量。
-- 认知变量用于调节讲解深浅，身份变量用于案例映射。
+## Pattern C: Comparison-Driven Learning
 
-## 3. 证据链结构
-
-- 历史/现象：解释过去为何成立。
-- 数据/机制：解释现在为何变化。
-- 结论/边界：说明适用条件与限制。
-
-## 4. 可视化任务规范
-
-- 至少1个 HTML 信息图用于概念对比。
-- 至少1个 SVG 结构图用于机制演化。
-- 图形任务需写清：坐标、元素、关系、限制（如禁止折线、禁止夸张）。
-
-## 5. 交互反馈规范
-
-- 每次 `?[%{{var}}...]` 后，必须复述变量值并反馈。
-- 反馈只展开用户所选分支，不扩散未选分支。
-
-## 6. 双交付闭环
-
-- 交付物A（理解型）：判断卡、对照表、能力图。
-- 交付物B（行动型）：短周期最小验证、成功/失败判据。
-
-## 7. 迁移方式
-
-- 保留“教学能力组件”，不固化单一路径顺序。
-- 组件池：开场、证据链、可视化、观点澄清、误判校正、交付物、总结承接。
-- 按章节主题选择组件组合与先后顺序，保证内容驱动。
-- 灵活替换业务内容：问题、术语、案例、数据口径。
-- 严禁机械套话：同一组件下，语言需贴合章节原文风格。
+1. Baseline response capture
+2. Alternate scenario or constraint
+3. Side-by-side interpretation
+4. Updated decision path

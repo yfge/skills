@@ -1,0 +1,108 @@
+schema_version: "1.0"
+name: "ai-shifu-content-segmenter"
+slug: "ai-shifu-content-segmenter"
+one_liner: "Clean transcripts and course docs into stable semantic lesson segments with structure preservation."
+description: "Cleans noisy transcripts and course documents, then produces stable semantic lesson segments while preserving code, images, and key terminology."
+category: "content-preprocessing"
+target_users:
+  - "Course content creators"
+  - "Instructional designers"
+  - "Learning experience engineers"
+primary_problem: "Raw course material is noisy and inconsistent, making lesson generation unstable."
+language_resolution:
+  allow_any_language: true
+  bcp47_recommended: true
+  priority:
+    - "explicit_output_language_request"
+    - "target_language_parameter"
+    - "session_language_preference"
+    - "prompt_language_detection"
+    - "source_material_dominant_language"
+    - "default_fallback_language"
+  default_fallback_language: "en-US"
+inputs:
+  - name: "raw_material"
+    type: "text|markdown"
+    required: true
+    description: "Raw transcript or course document text."
+  - name: "chapter_hint"
+    type: "json"
+    required: false
+    description: "Optional lesson order and granularity hints."
+  - name: "target_language"
+    type: "text"
+    required: false
+    description: "Requested output language tag (BCP-47 recommended, for example `fr-FR` or `ja-JP`)."
+  - name: "bilingual_output"
+    type: "boolean"
+    required: false
+    description: "Whether to output bilingual content instead of single-target language content."
+  - name: "term_policy"
+    type: "text"
+    required: false
+    description: "Terminology policy: `preserve`, `translate`, or `mixed`."
+  - name: "quote_policy"
+    type: "text"
+    required: false
+    description: "Quote policy: `translate_only` or `original_plus_translation`."
+outputs:
+  - name: "structured_segments_json"
+    type: "json"
+    required: true
+    description: "Structured segments with source_span and segment_type fields."
+  - name: "preserve_block_index"
+    type: "json"
+    required: true
+    description: "Index of immutable code, image, and table blocks."
+  - name: "lesson_cut_candidates"
+    type: "json"
+    required: true
+    description: "Lesson boundary candidates with one core question each."
+tech_stack:
+  languages:
+    - "markdown"
+    - "yaml"
+  runtime:
+    - "codex-skill"
+dependencies:
+  internal_skills: []
+  external_services: []
+  api_keys_required: false
+maturity: "beta"
+reusability_score: 4
+docs_score: 5
+demo:
+  type: "repo_example"
+  url: "./skills/ai-shifu-content-segmenter/examples/minimal.md"
+keywords:
+  zh:
+    - "transcript cleanup"
+    - "lesson segmentation"
+    - "semantic chunking"
+    - "structure preservation"
+  en:
+    - "transcript cleanup"
+    - "lesson segmentation"
+    - "semantic chunking"
+    - "structure preservation"
+triggers:
+  zh:
+    - "clean transcript and build lesson segments"
+    - "preserve code and images before lesson split"
+    - "semantic segmentation for noisy course material"
+  en:
+    - "clean transcript and build lesson segments"
+    - "preserve code and images before lesson split"
+    - "semantic segmentation for noisy course material"
+related_skills:
+  - "ai-shifu-transcript-to-lessons"
+  - "ai-shifu-lesson-script-generator"
+  - "ai-shifu-skill-quality-optimizer"
+aliases:
+  zh:
+    - "course material segmenter"
+  en:
+    - "course material segmenter"
+owner: "ai-shifu"
+license: "UNLICENSED"
+last_verified_at: "2026-03-10"
