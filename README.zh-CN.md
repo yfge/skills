@@ -1,4 +1,4 @@
-# ai-shifu-skills
+# ai-shifu skills
 
 [English README](./README.md)
 
