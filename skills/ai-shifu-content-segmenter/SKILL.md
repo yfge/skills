@@ -32,6 +32,13 @@ Notes:
 - Do not restrict supported languages to a fixed list.
 - If output language is explicit, source-language distribution must not override it.
 
+## Authoring Control Inputs
+
+Use these optional controls to improve downstream lesson quality:
+
+- `course_profile` (json): audience level, prerequisite level, lesson duration target, lesson count target, and assessment mode.
+- `delivery_constraints` (json): interaction density, platform or rendering limits, must-cover topics, avoid topics, and non-negotiable source fragments.
+
 ## Workflow
 
 1. Remove filler language and duplicated phrasing without changing meaning.

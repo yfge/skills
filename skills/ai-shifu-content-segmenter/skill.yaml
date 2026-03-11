@@ -29,6 +29,14 @@ inputs:
     type: "json"
     required: false
     description: "Optional lesson order and granularity hints."
+  - name: "course_profile"
+    type: "json"
+    required: false
+    description: "Course authoring profile, for example audience level, lesson duration, and assessment style."
+  - name: "delivery_constraints"
+    type: "json"
+    required: false
+    description: "Delivery constraints, for example platform limits, interaction density, and must-cover topics."
   - name: "target_language"
     type: "text"
     required: false
@@ -104,4 +112,4 @@ aliases:
     - "course material segmenter"
 owner: "ai-shifu"
 license: "UNLICENSED"
-last_verified_at: "2026-03-10"
+last_verified_at: "2026-03-11"

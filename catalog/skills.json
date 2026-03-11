@@ -41,6 +41,18 @@
           "description": "Optional lesson order and granularity hints."
         },
         {
+          "name": "course_profile",
+          "type": "json",
+          "required": false,
+          "description": "Course authoring profile, for example audience level, lesson duration, and assessment style."
+        },
+        {
+          "name": "delivery_constraints",
+          "type": "json",
+          "required": false,
+          "description": "Delivery constraints, for example platform limits, interaction density, and must-cover topics."
+        },
+        {
           "name": "target_language",
           "type": "text",
           "required": false,
@@ -146,7 +158,7 @@
       },
       "owner": "ai-shifu",
       "license": "UNLICENSED",
-      "last_verified_at": "2026-03-10",
+      "last_verified_at": "2026-03-11",
       "skill_path": "skills/ai-shifu-content-segmenter",
       "skill_md_path": "skills/ai-shifu-content-segmenter/SKILL.md",
       "openai_yaml_path": "skills/ai-shifu-content-segmenter/agents/openai.yaml"
@@ -189,6 +201,18 @@
           "type": "json",
           "required": false,
           "description": "Constraints for pacing, interactions, and cross-lesson variable strategy."
+        },
+        {
+          "name": "course_profile",
+          "type": "json",
+          "required": false,
+          "description": "Course authoring profile, for example audience level, lesson duration, and assessment style."
+        },
+        {
+          "name": "delivery_constraints",
+          "type": "json",
+          "required": false,
+          "description": "Delivery constraints, for example platform limits, interaction density, and must-cover topics."
         },
         {
           "name": "target_language",
@@ -297,7 +321,7 @@
       },
       "owner": "ai-shifu",
       "license": "UNLICENSED",
-      "last_verified_at": "2026-03-10",
+      "last_verified_at": "2026-03-11",
       "skill_path": "skills/ai-shifu-lesson-script-generator",
       "skill_md_path": "skills/ai-shifu-lesson-script-generator/SKILL.md",
       "openai_yaml_path": "skills/ai-shifu-lesson-script-generator/agents/openai.yaml"
@@ -346,6 +370,18 @@
           "type": "json",
           "required": false,
           "description": "Rules for interaction limits and cross-lesson dependency behavior."
+        },
+        {
+          "name": "course_profile",
+          "type": "json",
+          "required": false,
+          "description": "Course authoring profile, for example audience level, lesson duration, and assessment style."
+        },
+        {
+          "name": "delivery_constraints",
+          "type": "json",
+          "required": false,
+          "description": "Delivery constraints, for example platform limits, interaction density, and must-cover topics."
         },
         {
           "name": "target_language",
@@ -453,7 +489,7 @@
       },
       "owner": "ai-shifu",
       "license": "UNLICENSED",
-      "last_verified_at": "2026-03-10",
+      "last_verified_at": "2026-03-11",
       "skill_path": "skills/ai-shifu-lesson-script-optimizer",
       "skill_md_path": "skills/ai-shifu-lesson-script-optimizer/SKILL.md",
       "openai_yaml_path": "skills/ai-shifu-lesson-script-optimizer/agents/openai.yaml"
@@ -496,6 +532,18 @@
           "type": "json",
           "required": false,
           "description": "Persona, pacing, terminology, and lesson-size constraints."
+        },
+        {
+          "name": "course_profile",
+          "type": "json",
+          "required": false,
+          "description": "Course authoring profile, for example audience level, lesson duration, and assessment style."
+        },
+        {
+          "name": "delivery_constraints",
+          "type": "json",
+          "required": false,
+          "description": "Delivery constraints, for example platform limits, interaction density, and must-cover topics."
         },
         {
           "name": "target_language",
@@ -607,7 +655,7 @@
       },
       "owner": "ai-shifu",
       "license": "UNLICENSED",
-      "last_verified_at": "2026-03-10",
+      "last_verified_at": "2026-03-11",
       "skill_path": "skills/ai-shifu-transcript-to-lessons",
       "skill_md_path": "skills/ai-shifu-transcript-to-lessons/SKILL.md",
       "openai_yaml_path": "skills/ai-shifu-transcript-to-lessons/agents/openai.yaml"

@@ -35,21 +35,39 @@ Each skill keeps `SKILL.md` as the behavior source of truth.
 Core skill metadata lives in `skills/<skill-slug>/skill.yaml`.
 The standalone quality optimizer metadata lives in `standalone-skills/ai-shifu-skill-quality-optimizer/skill.yaml`.
 
-## Unified Quickstart
+## Course Authoring Paths
 
-Goal: run the four core lesson skills as one pipeline from noisy source material to optimized teaching prompts.
+Choose one path based on control needs:
 
-1. Prepare source material (transcript or course document).
-2. Run `ai-shifu-content-segmenter` to produce stable segment candidates and immutable-block indexes.
-3. Run `ai-shifu-transcript-to-lessons` to generate lesson-by-lesson MarkdownFlow scripts.
-4. Run `ai-shifu-lesson-script-generator` to produce runnable lesson prompts.
-5. Run `ai-shifu-lesson-script-optimizer` to improve teaching logic, interaction quality, and variable stability.
+### Path A: One-Shot Generation (Recommended)
+
+Use when you want the fastest route from raw material to runnable lesson scripts.
+
+1. Prepare source material (transcript or course documents).
+2. Run `ai-shifu-transcript-to-lessons`.
+3. Run `ai-shifu-lesson-script-optimizer` for final quality hardening.
 
 Expected artifacts:
-
-- Structured segmentation JSON
 - Lesson-by-lesson MarkdownFlow scripts
-- Optimized lesson prompts and audit notes
+- Course index and global variable table
+- Optimized lesson prompts and risk report
+
+Note:
+- `ai-shifu-transcript-to-lessons` already orchestrates segmentation and lesson script generation internally.
+- Do not run `ai-shifu-lesson-script-generator` again unless you are intentionally regenerating selected lessons.
+
+### Path B: Modular Authoring (Advanced)
+
+Use when you need precise control over each stage.
+
+1. Run `ai-shifu-content-segmenter` to produce semantic segments and immutable-block indexes.
+2. Run `ai-shifu-lesson-script-generator` lesson by lesson on selected segments.
+3. Run `ai-shifu-lesson-script-optimizer` to harden interaction logic and runtime stability.
+
+Expected artifacts:
+- Structured segmentation JSON
+- Runnable lesson MarkdownFlow scripts
+- Optimized scripts with issue-level change traceability
 
 ## Build Catalog Artifacts
 

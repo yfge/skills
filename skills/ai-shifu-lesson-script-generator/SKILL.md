@@ -31,6 +31,13 @@ Use these optional control fields:
 Output rule:
 - Learner-facing script text must follow resolved target language unless `bilingual_output` is true.
 
+## Authoring Control Inputs
+
+Use these optional controls to keep lesson scripts aligned with real course constraints:
+
+- `course_profile` (json): audience level, prerequisite level, lesson duration target, lesson count target, and assessment mode.
+- `delivery_constraints` (json): interaction density, platform limits, must-cover topics, avoid topics, and non-negotiable source fragments.
+
 ## Output Boundary
 
 - Output learner-facing teaching prompt content only.

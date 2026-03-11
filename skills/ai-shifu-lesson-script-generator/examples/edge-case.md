@@ -1,19 +1,54 @@
 # Edge Case Example
 
-## Input
+## Input Payload (example)
 
-- Sparse segment metadata.
-- Conflicting interaction constraints.
-- Missing cross-lesson context.
+```json
+{
+  "structured_lesson_segments": [
+    {
+      "lesson_id": "L07",
+      "core_question": "What is the safest rollback trigger?",
+      "segment_ids": ["S70"]
+    }
+  ],
+  "teaching_constraints": {
+    "max_interactions": 2,
+    "must_use_viewpoint_check": true,
+    "allow_cross_lesson_dependency": false
+  },
+  "delivery_constraints": {
+    "platform_limits": ["markdown_only"]
+  }
+}
+```
 
-## Expected Output
+## Output Snapshot (example)
 
-- Stable baseline lesson script in fallback mode.
-- Explicit assumptions and safe defaults.
-- Upgrade notes for a richer second pass.
+```json
+{
+  "lesson_id": "L07",
+  "fallback_mode": true,
+  "assumptions": [
+    "No cross-lesson variable carryover is used.",
+    "One viewpoint check is enough for this pass."
+  ],
+  "upgrade_notes": [
+    "Add richer evidence chain after full source context is available."
+  ]
+}
+```
+
+```md
+## Objective
+Pick a rollback trigger that minimizes blast radius.
+---
+?[%{{rollback_trigger_viewpoint_check}} latency spike threshold | error budget burn threshold]
+---
+Given {{rollback_trigger_viewpoint_check}}, define one immediate rollback condition and one follow-up diagnostic.
+```
 
 ## Acceptance Notes
 
-- Syntax remains runnable.
-- Interaction count remains within limits.
-- Output remains learner-facing and concrete.
+- Script remains valid in fallback mode.
+- Interaction count stays within declared limits.
+- Output stays concrete and learner-facing.

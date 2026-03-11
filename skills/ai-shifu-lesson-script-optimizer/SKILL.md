@@ -42,6 +42,8 @@ Output rule:
 - Source material (transcript, notes, or structured lesson assets).
 - Existing teaching script(s), one lesson or full course.
 - Optional constraints (for example, whether cross-lesson variable carryover is allowed).
+- Optional `course_profile` (json): audience level, prerequisite level, lesson duration target, lesson count target, and assessment mode.
+- Optional `delivery_constraints` (json): interaction density, platform limits, must-cover topics, avoid topics, and non-negotiable source fragments.
 
 ## Core Method
 

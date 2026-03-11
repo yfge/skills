@@ -12,10 +12,60 @@ Provide one of:
 - Lesson granularity preference (`short`, `medium`, `long`).
 - Terminology and tone constraints.
 - Non-negotiable source fragments.
+- `course_profile` object.
+- `delivery_constraints` object.
 - `target_language` (BCP-47 recommended, for example `fr-FR`, `ja-JP`, `zh-CN`).
 - `bilingual_output` (`true|false`).
 - `term_policy` (`preserve|translate|mixed`).
 - `quote_policy` (`translate_only|original_plus_translation`).
+
+## Recommended Object Shapes
+
+### `course_profile`
+
+```json
+{
+  "audience_level": "beginner|intermediate|advanced",
+  "prerequisite_level": "none|basic|strong",
+  "lesson_duration_minutes": 12,
+  "lesson_count_target": 8,
+  "assessment_mode": "quiz|project|discussion|mixed"
+}
+```
+
+### `delivery_constraints`
+
+```json
+{
+  "interaction_density": "low|medium|high",
+  "platform_limits": ["no_iframe", "markdown_only"],
+  "must_cover_topics": ["topic-a", "topic-b"],
+  "avoid_topics": ["topic-x"],
+  "non_negotiable_fragments": ["exact quote or code block id"]
+}
+```
+
+## Minimal Input Payload Example
+
+```json
+{
+  "course_material": "long transcript or merged markdown",
+  "generation_constraints": {
+    "persona": "hands-on mentor",
+    "lesson_granularity": "short"
+  },
+  "course_profile": {
+    "audience_level": "beginner",
+    "lesson_duration_minutes": 10,
+    "lesson_count_target": 6,
+    "assessment_mode": "project"
+  },
+  "delivery_constraints": {
+    "interaction_density": "medium",
+    "must_cover_topics": ["core workflow", "failure handling"]
+  }
+}
+```
 
 ## Language Resolution Priority
 

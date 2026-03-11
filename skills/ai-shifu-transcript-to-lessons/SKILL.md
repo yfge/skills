@@ -56,6 +56,8 @@ Optional constraints:
 - Learner persona.
 - Lesson granularity (`short`, `medium`, `long`).
 - Terminology and tone preservation requirements.
+- `course_profile` (json): audience level, prerequisite level, lesson duration target, lesson count target, and assessment mode.
+- `delivery_constraints` (json): interaction density, platform limits, must-cover topics, avoid topics, and non-negotiable source fragments.
 
 See `references/input-contract.md`.
 
