@@ -71,7 +71,19 @@ python3 scripts/validate_skill_quality.py
 
 ## Language Policy
 
-All skill artifacts are authored in international English to support global distribution.
+Skills are language-flexible for course generation. From a user perspective:
+
+- If you explicitly request an output language, that language is used.
+- If you provide `target_language`, it is used when no stronger explicit instruction exists.
+- If neither is provided, the system uses session preference and prompt language signals.
+- If language is still ambiguous, it falls back to `en-US`.
+- If you need bilingual output, set `bilingual_output: true`.
+
+Recommended controls for predictable language output:
+- `target_language` (for example `zh-CN`, `fr-FR`, `ja-JP`)
+- `bilingual_output` (`true|false`)
+- `term_policy` (`preserve|translate|mixed`)
+- `quote_policy` (`translate_only|original_plus_translation`)
 
 ## AI-Shifu
 
