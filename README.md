@@ -13,10 +13,6 @@ A consolidated repository of four core AI-Shifu skills for MarkdownFlow course p
 
 Each core skill includes runnable examples under `skills/<slug>/examples/`.
 
-The quality-governance skill is intentionally decoupled and kept as a standalone module under:
-
-- `standalone-skills/ai-shifu-skill-quality-optimizer`
-
 ## Repository Layout
 
 ```text
@@ -25,15 +21,12 @@ skills/
   ai-shifu-transcript-to-lessons/
   ai-shifu-lesson-script-generator/
   ai-shifu-lesson-script-optimizer/
-standalone-skills/
-  ai-shifu-skill-quality-optimizer/
 ```
 
 ## Usage
 
 Each skill keeps `SKILL.md` as the behavior source of truth.
 Core skill metadata lives in `skills/<skill-slug>/skill.yaml`.
-The standalone quality optimizer metadata lives in `standalone-skills/ai-shifu-skill-quality-optimizer/skill.yaml`.
 
 ## Course Authoring Paths
 
@@ -69,42 +62,12 @@ Expected artifacts:
 - Runnable lesson MarkdownFlow scripts
 - Optimized scripts with issue-level change traceability
 
-## Build Catalog Artifacts
-
-Generate machine-readable catalog files for indexing, search, and distribution:
-
-```bash
-python3 scripts/build_catalog.py
-```
-
-Output files:
-
-- `catalog/skills.json`
-- `catalog/skills.csv`
-- `INDEX.md`
-
 ## Validate Metadata
 
 ```bash
 python3 scripts/validate_openai_yaml.py
 python3 scripts/validate_skill_quality.py
-python3 scripts/build_catalog.py
-python3 scripts/build_quality_report.py
 ```
-
-Quality artifacts:
-
-- `quality/quality-report.md`
-- `quality/quality-summary.json`
-
-## Stability Task Boards
-
-Atomic quality and stability iterations are tracked in:
-
-- `tasks/skill-stability-v1/backlog.yaml`
-- `tasks/skill-stability-v1/iteration-log.md`
-- `tasks/skill-stability-v2/backlog.yaml`
-- `tasks/skill-stability-v2/iteration-log.md`
 
 ## Language Policy
 

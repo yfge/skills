@@ -1,4 +1,0 @@
-interface:
-  display_name: "Skill Quality Optimizer"
-  short_description: "Audit and improve skill repository quality with blocker-first remediation"
-  default_prompt: "Use $ai-shifu-skill-quality-optimizer to audit this skills repository, fix blockers first, and report regression outcomes with file-level traceability."

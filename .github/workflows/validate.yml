@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
 
 jobs:
   validate:
@@ -26,95 +24,8 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml
 
-      - name: Validate task backlog
-        run: python3 scripts/validate_task_backlog.py
-
-      - name: Build quality report
-        run: python3 scripts/build_quality_report.py
-
-      - name: Comment quality summary on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const marker = '<!-- ai-shifu-skill-quality-report -->';
-            const path = 'quality/quality-summary.json';
-            const summary = JSON.parse(fs.readFileSync(path, 'utf8'));
-
-            const statusText = summary.overall_status === 'pass' ? 'PASS' : 'BLOCKED';
-            let body = `${marker}
-            ## Skill Quality Gate
-            - Overall status: **${statusText}**
-            - Total skills: **${summary.total_skills}**
-            - Skills with blockers: **${summary.skills_with_blockers}**
-            - Suggestion issues: **${summary.suggestion_issues_total}**
-            - Average score: **${summary.average_quality_score} / 100**
-
-            `;
-
-            const blockerSkills = summary.skills.filter(s => s.blockers.length > 0);
-            if (blockerSkills.length === 0) {
-              body += '### Blockers\\n- None\\n\\n';
-            } else {
-              body += '### Blockers\\n';
-              for (const skill of blockerSkills) {
-                body += `- \`${skill.slug}\`\\n`;
-                for (const item of skill.blockers) {
-                  const detail = item.detail ? ` (${item.detail})` : '';
-                  body += `  - \`${item.name}\`${detail}\\n`;
-                }
-              }
-              body += '\\n';
-            }
-
-            const suggestionSkills = summary.skills.filter(s => s.suggestions.length > 0);
-            if (suggestionSkills.length === 0) {
-              body += '### Suggestions\\n- None\\n';
-            } else {
-              body += '### Suggestions\\n';
-              for (const skill of suggestionSkills) {
-                body += `- \`${skill.slug}\`\\n`;
-                for (const item of skill.suggestions.slice(0, 5)) {
-                  const detail = item.detail ? ` (${item.detail})` : '';
-                  body += `  - \`${item.name}\`${detail}\\n`;
-                }
-              }
-            }
-
-            const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-            const comments = await github.paginate(github.rest.issues.listComments, {
-              owner,
-              repo,
-              issue_number,
-              per_page: 100
-            });
-            const existing = comments.find(c => c.body && c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner,
-                repo,
-                comment_id: existing.id,
-                body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body
-              });
-            }
-
       - name: Validate openai metadata
         run: python3 scripts/validate_openai_yaml.py
 
       - name: Validate skill quality
         run: python3 scripts/validate_skill_quality.py
-
-      - name: Build catalog
-        run: python3 scripts/build_catalog.py
-
-      - name: Ensure catalog is committed
-        run: git diff --exit-code -- catalog/skills.json catalog/skills.csv INDEX.md quality/quality-report.md quality/quality-summary.json
