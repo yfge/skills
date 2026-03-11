@@ -1,6 +1,6 @@
 # AI-Shifu Skills
 
-[Alternate README Path](./README.zh-CN.md)
+[中文 README](./README.zh-CN.md)
 
 A consolidated repository of four core AI-Shifu skills for MarkdownFlow course production.
 
