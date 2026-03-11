@@ -102,7 +102,6 @@ See `references/report-template.md`.
 
 - Downstream orchestration: `ai-shifu-transcript-to-lessons`
 - Downstream script generation: `ai-shifu-lesson-script-generator`
-- Quality governance: `ai-shifu-skill-quality-optimizer`
 
 ## Examples
 

@@ -97,7 +97,6 @@ triggers:
 related_skills:
   - "ai-shifu-transcript-to-lessons"
   - "ai-shifu-lesson-script-generator"
-  - "ai-shifu-skill-quality-optimizer"
 aliases:
   zh:
     - "course material segmenter"

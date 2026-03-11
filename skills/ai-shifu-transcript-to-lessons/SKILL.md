@@ -158,7 +158,6 @@ See `references/report-template.md`.
 - Upstream cleanup: `ai-shifu-content-segmenter`
 - Downstream generation: `ai-shifu-lesson-script-generator`
 - Downstream optimization: `ai-shifu-lesson-script-optimizer`
-- Quality governance: `ai-shifu-skill-quality-optimizer`
 
 ## Examples
 

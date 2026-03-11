@@ -47,7 +47,7 @@ reusability_score: 5
 docs_score: 5
 demo:
   type: "repo_example"
-  url: "./skills/ai-shifu-skill-quality-optimizer/examples/minimal.md"
+  url: "./standalone-skills/ai-shifu-skill-quality-optimizer/examples/minimal.md"
 keywords:
   zh:
     - "skill quality audit"

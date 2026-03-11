@@ -100,7 +100,6 @@ related_skills:
   - "ai-shifu-content-segmenter"
   - "ai-shifu-lesson-script-generator"
   - "ai-shifu-lesson-script-optimizer"
-  - "ai-shifu-skill-quality-optimizer"
 aliases:
   zh:
     - "transcript to lessons"

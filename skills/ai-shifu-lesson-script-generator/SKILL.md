@@ -166,7 +166,6 @@ See `references/report-template.md`.
 - Upstream preprocessing: `ai-shifu-content-segmenter`
 - Upstream orchestration: `ai-shifu-transcript-to-lessons`
 - Downstream optimization: `ai-shifu-lesson-script-optimizer`
-- Quality governance: `ai-shifu-skill-quality-optimizer`
 
 ## Examples
 

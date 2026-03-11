@@ -2,7 +2,7 @@
 
 [Alternate README Path](./README.zh-CN.md)
 
-A consolidated repository of five AI-Shifu skills for MarkdownFlow course production and skill quality governance.
+A consolidated repository of four core AI-Shifu skills for MarkdownFlow course production.
 
 ## Included Skills
 
@@ -10,9 +10,12 @@ A consolidated repository of five AI-Shifu skills for MarkdownFlow course produc
 - `ai-shifu-transcript-to-lessons`: convert transcripts or documents into lesson-by-lesson MarkdownFlow scripts.
 - `ai-shifu-lesson-script-generator`: generate runnable lesson prompts from structured lesson inputs.
 - `ai-shifu-lesson-script-optimizer`: audit and improve existing MarkdownFlow teaching prompts.
-- `ai-shifu-skill-quality-optimizer`: audit and improve repository quality using blocker/suggestion gating.
 
-Each skill includes runnable examples under `skills/<slug>/examples/`.
+Each core skill includes runnable examples under `skills/<slug>/examples/`.
+
+The quality-governance skill is intentionally decoupled and kept as a standalone module under:
+
+- `standalone-skills/ai-shifu-skill-quality-optimizer`
 
 ## Repository Layout
 
@@ -22,13 +25,15 @@ skills/
   ai-shifu-transcript-to-lessons/
   ai-shifu-lesson-script-generator/
   ai-shifu-lesson-script-optimizer/
+standalone-skills/
   ai-shifu-skill-quality-optimizer/
 ```
 
 ## Usage
 
 Each skill keeps `SKILL.md` as the behavior source of truth.
-Operational metadata lives in `skills/<skill-slug>/skill.yaml`.
+Core skill metadata lives in `skills/<skill-slug>/skill.yaml`.
+The standalone quality optimizer metadata lives in `standalone-skills/ai-shifu-skill-quality-optimizer/skill.yaml`.
 
 ## Unified Quickstart
 

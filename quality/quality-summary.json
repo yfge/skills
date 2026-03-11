@@ -1,8 +1,8 @@
 {
-  "total_skills": 5,
+  "total_skills": 4,
   "skills_with_blockers": 0,
   "suggestion_issues_total": 0,
-  "average_quality_score": 99.2,
+  "average_quality_score": 99.0,
   "overall_status": "pass",
   "skills": [
     {
@@ -34,17 +34,6 @@
       "maturity": "beta",
       "docs_score": 5,
       "reusability_score": 4,
-      "example_count": 2,
-      "blockers": [],
-      "suggestions": []
-    },
-    {
-      "slug": "ai-shifu-skill-quality-optimizer",
-      "quality_score": 100.0,
-      "status": "excellent",
-      "maturity": "beta",
-      "docs_score": 5,
-      "reusability_score": 5,
       "example_count": 2,
       "blockers": [],
       "suggestions": []

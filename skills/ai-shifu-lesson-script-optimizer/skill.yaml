@@ -101,7 +101,6 @@ triggers:
 related_skills:
   - "ai-shifu-lesson-script-generator"
   - "ai-shifu-transcript-to-lessons"
-  - "ai-shifu-skill-quality-optimizer"
 aliases:
   zh:
     - "lesson script optimizer"
