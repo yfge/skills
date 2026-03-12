@@ -24,6 +24,7 @@ Produce stable lesson-oriented semantic segments from noisy source material whil
 ## Transfer Signals
 
 Every segment should include transferable signals for downstream script quality:
+
 - learner hook
 - evidence type
 - visual cue

@@ -15,6 +15,7 @@ Systematically improve existing MarkdownFlow teaching prompts. This skill is not
 ## Language Resolution Policy
 
 Resolve target language with this strict priority:
+
 1. `explicit_output_language_request`
 2. `target_language_parameter`
 3. `session_language_preference`
@@ -23,12 +24,14 @@ Resolve target language with this strict priority:
 6. `default_fallback_language`
 
 Use these optional control fields:
+
 - `target_language` (BCP-47 recommended, for example `fr-FR`, `ja-JP`, `zh-CN`)
 - `bilingual_output` (`true|false`)
 - `term_policy` (`preserve|translate|mixed`)
 - `quote_policy` (`translate_only|original_plus_translation`)
 
 Output rule:
+
 - Optimized learner-facing script output must follow resolved target language unless `bilingual_output` is true.
 
 ## When to Use
@@ -80,23 +83,28 @@ Output rule:
 ## MarkdownFlow Syntax (Required)
 
 1. Variables:
+
 - Use `{{var_name}}`.
 - Variable names cannot contain spaces.
 - Undefined variables default to `"UNKNOWN"`.
 
 2. Interactions:
+
 - Single-select: `?[%{{var}} Option A | Option B | Option C]`
 - Multi-select: `?[%{{var}} Option A || Option B || Option C]`
 - Input: `?[%{{var}} ... enter your answer]`
 - Button + input: `?[%{{var}} Option A | Option B | ...Other, please specify]`
 
 3. Segments:
+
 - Use `---` between modules.
 - Keep one objective per module.
 
 4. Deterministic output:
+
 - Single-line fixed text: `===fixed text===`
 - Multi-line fixed text:
+
 ```md
 !===
 Line 1
@@ -105,6 +113,7 @@ Line 2
 ```
 
 5. Authoring principle:
+
 - Regular text should guide generation behavior.
 - Avoid outputting full polished article content as fixed prose.
 
@@ -115,12 +124,14 @@ See `references/methodology.md`.
 1. Define scope (single lesson vs full course).
 2. Build coverage matrix: source points -> script coverage.
 3. Label issue classes:
+
 - `coverage_gap`
 - `meaning_shift`
 - `explanation_clarity`
 - `interaction_no_branching`
 - `visual_constraints_missing`
 - `variable_or_syntax_risk`
+
 4. Apply smallest safe edits first.
 5. Run checklist validation before final output.
 6. Re-check visual-text pairing for every core concept.

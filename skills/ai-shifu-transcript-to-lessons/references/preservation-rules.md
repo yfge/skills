@@ -9,11 +9,13 @@
 ## Controlled Rewriting
 
 Allowed:
+
 - Filler removal.
 - Sentence smoothing.
 - Structural reorganization for lesson clarity.
 
 Not allowed:
+
 - Silent factual changes.
 - Unmarked omission of required source evidence.
 - Variable references before collection.

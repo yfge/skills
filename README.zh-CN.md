@@ -1,5 +1,5 @@
 # AI 师傅 Skills（中文说明）
- 
+
 [English README](./README.md)
 
 本仓库聚焦 MarkdownFlow 课程制作，包含 4 个核心 skills。
@@ -41,11 +41,13 @@ skills/
 3. 运行 `ai-shifu-lesson-script-optimizer` 做最终质量加固。
 
 预期产物：
+
 - 分课节 MarkdownFlow 脚本
 - 课程索引与全局变量表
 - 优化后脚本与风险报告
 
 注意：
+
 - `ai-shifu-transcript-to-lessons` 已内置分段与脚本生成编排。
 - 除非你要定向重生成某些课节，否则不要重复运行 `ai-shifu-lesson-script-generator`。
 
@@ -58,6 +60,7 @@ skills/
 3. 运行 `ai-shifu-lesson-script-optimizer`，加固交互逻辑和运行稳定性。
 
 预期产物：
+
 - 结构化分段 JSON
 - 可运行 MarkdownFlow 课节脚本
 - 带问题级变更追踪的优化脚本
@@ -80,6 +83,7 @@ python3 scripts/validate_skill_quality.py
 - 需要双语输出时，设置 `bilingual_output: true`。
 
 建议使用以下控制项提升可预期性：
+
 - `target_language`（例如 `zh-CN`、`fr-FR`、`ja-JP`）
 - `bilingual_output`（`true|false`）
 - `term_policy`（`preserve|translate|mixed`）
@@ -87,4 +91,4 @@ python3 scripts/validate_skill_quality.py
 
 ## AI 师傅
 
-本技能套件是 AI 师傅课程创作工作流的一部分：https://ai-shifu.com
+本技能套件是 AI 师傅课程创作工作流的一部分：<https://ai-shifu.com>

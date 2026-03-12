@@ -3,6 +3,7 @@
 ## Required
 
 Provide one of:
+
 - A single long transcript or course document.
 - A set of topic-aligned documents with intended order.
 
@@ -70,6 +71,7 @@ Provide one of:
 ## Language Resolution Priority
 
 If language signals conflict, resolve with this strict order:
+
 1. explicit output language request
 2. `target_language` parameter
 3. session language preference

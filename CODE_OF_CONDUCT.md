@@ -3,6 +3,7 @@
 ## Our Standards
 
 Contributors are expected to:
+
 1. Be respectful and constructive.
 2. Focus feedback on ideas and implementation.
 3. Avoid harassment, discrimination, and personal attacks.

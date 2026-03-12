@@ -41,11 +41,13 @@ Use when you want the fastest route from raw material to runnable lesson scripts
 3. Run `ai-shifu-lesson-script-optimizer` for final quality hardening.
 
 Expected artifacts:
+
 - Lesson-by-lesson MarkdownFlow scripts
 - Course index and global variable table
 - Optimized lesson prompts and risk report
 
 Note:
+
 - `ai-shifu-transcript-to-lessons` already orchestrates segmentation and lesson script generation internally.
 - Do not run `ai-shifu-lesson-script-generator` again unless you are intentionally regenerating selected lessons.
 
@@ -58,6 +60,7 @@ Use when you need precise control over each stage.
 3. Run `ai-shifu-lesson-script-optimizer` to harden interaction logic and runtime stability.
 
 Expected artifacts:
+
 - Structured segmentation JSON
 - Runnable lesson MarkdownFlow scripts
 - Optimized scripts with issue-level change traceability
@@ -80,6 +83,7 @@ Skills are language-flexible for course generation. From a user perspective:
 - If you need bilingual output, set `bilingual_output: true`.
 
 Recommended controls for predictable language output:
+
 - `target_language` (for example `zh-CN`, `fr-FR`, `ja-JP`)
 - `bilingual_output` (`true|false`)
 - `term_policy` (`preserve|translate|mixed`)
@@ -87,4 +91,4 @@ Recommended controls for predictable language output:
 
 ## AI-Shifu
 
-This suite is part of AI-Shifu's course authoring workflow: https://ai-shifu.com
+This suite is part of AI-Shifu's course authoring workflow: <https://ai-shifu.com>
