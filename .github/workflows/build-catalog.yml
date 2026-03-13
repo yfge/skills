@@ -8,7 +8,6 @@ on:
     branches:
       - main
     paths:
-      - "skills/**/skill.yaml"
       - "skills/**/SKILL.md"
       - "scripts/build_catalog.py"
       - "scripts/build_quality_report.py"
@@ -30,12 +29,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Install dependencies
-        run: pip install pyyaml
-
-      - name: Validate openai metadata
-        run: python3 scripts/validate_openai_yaml.py
 
       - name: Validate skill quality
         run: python3 scripts/validate_skill_quality.py
