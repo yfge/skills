@@ -2,7 +2,7 @@
 
 [中文 README](./README.zh-CN.md)
 
-A consolidated repository of four core AI-Shifu skills for MarkdownFlow course production.
+A consolidated repository of five core AI-Shifu skills for MarkdownFlow course production and deployment.
 
 ## Included Skills
 
@@ -10,8 +10,9 @@ A consolidated repository of four core AI-Shifu skills for MarkdownFlow course p
 - `ai-shifu-transcript-to-lessons`: convert transcripts or documents into lesson-by-lesson MarkdownFlow scripts.
 - `ai-shifu-lesson-script-generator`: generate runnable lesson prompts from structured lesson inputs.
 - `ai-shifu-lesson-script-optimizer`: audit and improve existing MarkdownFlow teaching prompts.
+- `ai-shifu-course-manager`: deploy, manage, and sync MDF course files to the AI-Shifu platform.
 
-Each core skill includes runnable examples under `skills/<slug>/examples/`.
+The four authoring skills include runnable examples under `skills/<slug>/examples/`.
 
 ## Repository Layout
 
@@ -21,6 +22,7 @@ skills/
   ai-shifu-transcript-to-lessons/
   ai-shifu-lesson-script-generator/
   ai-shifu-lesson-script-optimizer/
+  ai-shifu-course-manager/
 ```
 
 ## Usage
@@ -84,6 +86,16 @@ Recommended controls for predictable language output:
 - `bilingual_output` (`true|false`)
 - `term_policy` (`preserve|translate|mixed`)
 - `quote_policy` (`translate_only|original_plus_translation`)
+
+## Course Deployment
+
+Once your MarkdownFlow scripts are ready, use `ai-shifu-course-manager` to deploy them to the AI-Shifu platform:
+
+1. Build the import file from a local course directory: `build --course-dir ./course-a/`
+2. Import to the platform: `import --new --json-file ./course-a/shifu-import.json`
+3. Publish the course: `publish <shifu_bid>`
+
+See the [Course Manager SKILL.md](./skills/ai-shifu-course-manager/SKILL.md) for full CLI reference.
 
 ## AI-Shifu
 
