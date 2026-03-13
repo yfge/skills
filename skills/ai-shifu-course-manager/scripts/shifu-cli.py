@@ -130,6 +130,9 @@ def cmd_login(args):
         headers={"Content-Type": "application/json"},
         timeout=30,
     )
+    if not resp.ok:
+        print(f"Failed to send SMS (HTTP {resp.status_code}): {resp.text[:200]}")
+        sys.exit(1)
     data = resp.json()
     if data.get("code") != 0:
         print(f"Failed to send SMS: {data}")
@@ -150,6 +153,9 @@ def cmd_login(args):
         headers={"Content-Type": "application/json"},
         timeout=30,
     )
+    if not resp.ok:
+        print(f"Verification failed (HTTP {resp.status_code}): {resp.text[:200]}")
+        sys.exit(1)
     data = resp.json()
     if data.get("code") != 0:
         print(f"Verification failed: {data}")
