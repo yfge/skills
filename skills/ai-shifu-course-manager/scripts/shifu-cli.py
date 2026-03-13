@@ -30,10 +30,11 @@ def save_env(token, base_url=None):
     env_path = str(ENV_FILE)
     if not ENV_FILE.exists():
         ENV_FILE.parent.mkdir(parents=True, exist_ok=True)
-        ENV_FILE.touch()
+        ENV_FILE.touch(mode=0o600)
     set_key(env_path, "SHIFU_TOKEN", token)
     if base_url:
         set_key(env_path, "SHIFU_BASE_URL", base_url)
+    os.chmod(env_path, 0o600)
 
 
 def resolve_auth(args):
@@ -56,7 +57,12 @@ def api(base_url, token, method, path, **kwargs):
     """Make an API call, exit on error."""
     url = f"{base_url}/api/shifu{path}"
     headers = {"Cookie": f"token={token}", "Content-Type": "application/json"}
+    kwargs.setdefault("timeout", 30)
     resp = getattr(requests, method)(url, headers=headers, **kwargs)
+    if not resp.ok:
+        print(f"API error: {method.upper()} {path} (HTTP {resp.status_code})")
+        print(f"  Response: {resp.text[:500]}")
+        sys.exit(1)
     data = resp.json()
     if data.get("code") != 0:
         print(f"API error: {method.upper()} {path}")
@@ -69,14 +75,27 @@ def api_safe(base_url, token, method, path, **kwargs):
     """Make an API call, return None on error instead of exiting."""
     url = f"{base_url}/api/shifu{path}"
     headers = {"Cookie": f"token={token}", "Content-Type": "application/json"}
+    kwargs.setdefault("timeout", 30)
     try:
         resp = getattr(requests, method)(url, headers=headers, **kwargs)
+        if not resp.ok:
+            return None
         data = resp.json()
         if data.get("code") != 0:
             return None
         return data.get("data")
-    except Exception:
+    except (requests.RequestException, json.JSONDecodeError):
         return None
+
+
+def safe_join_path(base_dir, filename):
+    """Safely join base_dir and filename, preventing path traversal attacks."""
+    joined = os.path.realpath(os.path.join(base_dir, filename))
+    base = os.path.realpath(base_dir)
+    if not joined.startswith(base + os.sep) and joined != base:
+        print(f"Warning: path traversal detected, rejecting: {filename}")
+        return None
+    return joined
 
 
 def fmt_time(ts):
@@ -109,6 +128,7 @@ def cmd_login(args):
         f"{base_url}/api/user/send_sms_code",
         json={"mobile": phone},
         headers={"Content-Type": "application/json"},
+        timeout=30,
     )
     data = resp.json()
     if data.get("code") != 0:
@@ -128,6 +148,7 @@ def cmd_login(args):
         f"{base_url}/api/user/verify_sms_code",
         json={"mobile": phone, "sms_code": sms_code},
         headers={"Content-Type": "application/json"},
+        timeout=30,
     )
     data = resp.json()
     if data.get("code") != 0:
@@ -248,7 +269,7 @@ def cmd_export(args):
     # Backend export API returns a file download (not standard JSON envelope)
     url = f"{base_url}/api/shifu/shifus/{shifu_bid}/export"
     headers = {"Cookie": f"token={token}"}
-    resp = requests.get(url, headers=headers)
+    resp = requests.get(url, headers=headers, timeout=60)
 
     if resp.status_code != 200:
         print(f"Export failed (HTTP {resp.status_code})")
@@ -313,7 +334,7 @@ def cmd_update_meta(args):
         keywords = [k.strip() for k in keywords.split(",") if k.strip()]
 
     payload = {
-        "name": args.name or current.get("name", ""),
+        "name": args.name if args.name is not None else current.get("name", ""),
         "description": args.description if args.description is not None
                        else current.get("description", ""),
         "avatar": current.get("avatar", ""),
@@ -478,11 +499,17 @@ def _import_flat(base_url, token, json_file, shifu_bid):
         for item in tree:
             for child in item.get("children", []):
                 if child.get("bid"):
-                    api_safe(base_url, token, "delete",
-                             f"/shifus/{shifu_bid}/outlines/{child['bid']}")
+                    result = api_safe(base_url, token, "delete",
+                                      f"/shifus/{shifu_bid}/outlines/{child['bid']}")
+                    if result is None:
+                        print(f"Error: failed to delete child outline: {child['bid']}")
+                        sys.exit(1)
             if item.get("bid"):
-                api_safe(base_url, token, "delete",
-                         f"/shifus/{shifu_bid}/outlines/{item['bid']}")
+                result = api_safe(base_url, token, "delete",
+                                  f"/shifus/{shifu_bid}/outlines/{item['bid']}")
+                if result is None:
+                    print(f"Error: failed to delete outline: {item.get('name', item['bid'])}")
+                    sys.exit(1)
                 print(f"  Deleted old outline: {item.get('name', item['bid'])}")
 
     # Separate parents (chapters) and children (lessons) for two-pass creation
@@ -568,13 +595,23 @@ def _import_structured(base_url, token, structure_file, lessons_dir, shifu_bid):
         shifu_bid = result.get("bid")
         print(f"  Created: {shifu_bid}")
 
-    # Clean existing outlines
+    # Clean existing outlines (delete children first, then parents)
     tree = api_safe(base_url, token, "get", f"/shifus/{shifu_bid}/outlines")
     if tree and isinstance(tree, list):
         for item in tree:
+            for child in item.get("children", []):
+                if child.get("bid"):
+                    result = api_safe(base_url, token, "delete",
+                                      f"/shifus/{shifu_bid}/outlines/{child['bid']}")
+                    if result is None:
+                        print(f"Error: failed to delete child outline: {child['bid']}")
+                        sys.exit(1)
             if item.get("bid"):
-                api_safe(base_url, token, "delete",
-                         f"/shifus/{shifu_bid}/outlines/{item['bid']}")
+                result = api_safe(base_url, token, "delete",
+                                  f"/shifus/{shifu_bid}/outlines/{item['bid']}")
+                if result is None:
+                    print(f"Error: failed to delete outline: {item.get('name', item['bid'])}")
+                    sys.exit(1)
                 print(f"  Deleted: {item.get('name', item['bid'])}")
 
     # Create chapters and lessons
@@ -589,7 +626,9 @@ def _import_structured(base_url, token, structure_file, lessons_dir, shifu_bid):
             ls_title = lesson["title"]
             ls_file = lesson["file"]
 
-            filepath = os.path.join(lessons_dir, ls_file)
+            filepath = safe_join_path(lessons_dir, ls_file)
+            if filepath is None:
+                continue
             if not os.path.exists(filepath):
                 print(f"  Warning: file not found: {filepath}, skipping")
                 continue
@@ -616,6 +655,13 @@ def _import_structured(base_url, token, structure_file, lessons_dir, shifu_bid):
 
 def cmd_import(args):
     """Import a course (flat JSON or structured chapters)."""
+    if args.new and args.shifu_bid:
+        print("Error: omit <shifu_bid> when using --new")
+        sys.exit(1)
+    if not args.new and not args.shifu_bid:
+        print("Error: provide <shifu_bid> or use --new")
+        sys.exit(1)
+
     base_url, token = resolve_auth(args)
 
     # Determine shifu_bid: --new creates a new one, otherwise use positional
@@ -723,7 +769,9 @@ def cmd_build(args):
             lesson_children = []
             for ls_idx, ls_def in enumerate(ch_def.get("lessons", [])):
                 ls_file = ls_def["file"]
-                filepath = os.path.join(lessons_dir, ls_file)
+                filepath = safe_join_path(lessons_dir, ls_file)
+                if filepath is None:
+                    continue
                 if not os.path.exists(filepath):
                     print(f"Warning: file not found: {filepath}, skipping")
                     continue
@@ -787,7 +835,9 @@ def cmd_build(args):
 
         lesson_children = []
         for idx, filename in enumerate(lesson_files):
-            filepath = os.path.join(lessons_dir, filename)
+            filepath = safe_join_path(lessons_dir, filename)
+            if filepath is None:
+                continue
             with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read()
 
@@ -891,51 +941,58 @@ def cmd_unarchive(args):
 
 
 # ── CLI Entry Point ────────────────────────────────────────────────────────────
-def main():
-    load_env()
+def build_parser():
+    """Build and return the argument parser with all subcommands."""
+    # Shared parent parser for --base-url and --token on every subcommand
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument("--base-url", default=None,
+                               help="AI-Shifu base URL (or SHIFU_BASE_URL in .env)")
+    parent_parser.add_argument("--token", default=None,
+                               help="JWT token (or SHIFU_TOKEN in .env)")
 
     parser = argparse.ArgumentParser(
         prog="shifu-cli",
         description="AI-Shifu Course CLI - Unified tool for course CRUD operations",
     )
-    # Global options
-    parser.add_argument("--base-url", default=None,
-                        help="AI-Shifu base URL (or SHIFU_BASE_URL in .env)")
-    parser.add_argument("--token", default=None,
-                        help="JWT token (or SHIFU_TOKEN in .env)")
 
     sub = parser.add_subparsers(dest="command", help="Available commands")
 
     # ── login ──
-    p = sub.add_parser("login", help="SMS login and save token")
+    p = sub.add_parser("login", parents=[parent_parser],
+                       help="SMS login and save token")
     p.add_argument("--phone", required=True, help="Phone number for SMS login")
 
     # ── list ──
-    sub.add_parser("list", help="List all courses")
+    sub.add_parser("list", parents=[parent_parser], help="List all courses")
 
     # ── show ──
-    p = sub.add_parser("show", help="Show course detail or lesson MDF content")
+    p = sub.add_parser("show", parents=[parent_parser],
+                       help="Show course detail or lesson MDF content")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", nargs="?", default=None,
                    help="Outline BID (omit to show tree)")
 
     # ── history ──
-    p = sub.add_parser("history", help="Show MDF revision history")
+    p = sub.add_parser("history", parents=[parent_parser],
+                       help="Show MDF revision history")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", help="Outline BID")
 
     # ── export ──
-    p = sub.add_parser("export", help="Export course to JSON")
+    p = sub.add_parser("export", parents=[parent_parser],
+                       help="Export course to JSON")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("-o", "--output", default=None, help="Output file (stdout if omitted)")
 
     # ── create ──
-    p = sub.add_parser("create", help="Create a new empty course")
+    p = sub.add_parser("create", parents=[parent_parser],
+                       help="Create a new empty course")
     p.add_argument("--name", required=True, help="Course name")
     p.add_argument("--description", default=None, help="Course description")
 
     # ── update-meta ──
-    p = sub.add_parser("update-meta", help="Update course metadata")
+    p = sub.add_parser("update-meta", parents=[parent_parser],
+                       help="Update course metadata")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("--name", default=None, help="New course name")
     p.add_argument("--description", default=None, help="New description")
@@ -943,7 +1000,8 @@ def main():
                    help="File containing system prompt")
 
     # ── add-lesson ──
-    p = sub.add_parser("add-lesson", help="Add a new lesson")
+    p = sub.add_parser("add-lesson", parents=[parent_parser],
+                       help="Add a new lesson")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("--name", required=True, help="Lesson name")
     p.add_argument("--mdf-file", default=None, help="MDF content file")
@@ -951,30 +1009,35 @@ def main():
                    help="Parent outline BID (for nested structure)")
 
     # ── update-lesson ──
-    p = sub.add_parser("update-lesson", help="Update lesson MDF content")
+    p = sub.add_parser("update-lesson", parents=[parent_parser],
+                       help="Update lesson MDF content")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", help="Outline BID")
     p.add_argument("--mdf-file", required=True, help="MDF content file")
 
     # ── rename-lesson ──
-    p = sub.add_parser("rename-lesson", help="Rename a lesson")
+    p = sub.add_parser("rename-lesson", parents=[parent_parser],
+                       help="Rename a lesson")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", help="Outline BID")
     p.add_argument("--name", required=True, help="New lesson name")
 
     # ── delete-lesson ──
-    p = sub.add_parser("delete-lesson", help="Delete a lesson")
+    p = sub.add_parser("delete-lesson", parents=[parent_parser],
+                       help="Delete a lesson")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", help="Outline BID")
 
     # ── reorder ──
-    p = sub.add_parser("reorder", help="Reorder lessons")
+    p = sub.add_parser("reorder", parents=[parent_parser],
+                       help="Reorder lessons")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("--order", required=True,
                    help="Comma-separated list of outline BIDs in desired order")
 
     # ── import ──
-    p = sub.add_parser("import", help="Import a course (flat JSON or structured)")
+    p = sub.add_parser("import", parents=[parent_parser],
+                       help="Import a course (flat JSON or structured)")
     p.add_argument("shifu_bid", nargs="?", default=None,
                    help="Existing course BID (omit with --new to create)")
     p.add_argument("--new", action="store_true",
@@ -995,19 +1058,29 @@ def main():
     p.add_argument("--keywords", default=None, help="Keywords (comma-separated)")
 
     # ── publish ──
-    p = sub.add_parser("publish", help="Publish a course")
+    p = sub.add_parser("publish", parents=[parent_parser],
+                       help="Publish a course")
     p.add_argument("shifu_bid", help="Course BID")
 
     # ── archive ──
-    p = sub.add_parser("archive", help="Archive a course")
+    p = sub.add_parser("archive", parents=[parent_parser],
+                       help="Archive a course")
     p.add_argument("shifu_bid", help="Course BID")
 
     # ── unarchive ──
-    p = sub.add_parser("unarchive", help="Unarchive a course")
+    p = sub.add_parser("unarchive", parents=[parent_parser],
+                       help="Unarchive a course")
     p.add_argument("shifu_bid", help="Course BID")
 
-    # ── Parse & dispatch ──
+    return parser
+
+
+def main():
+    load_env()
+
+    parser = build_parser()
     args = parser.parse_args()
+
     if not args.command:
         parser.print_help()
         sys.exit(1)
