@@ -21,7 +21,6 @@ This repository hosts reusable AI-Shifu skills for MarkdownFlow course productio
 5. Run local checks:
 
 ```bash
-python3 scripts/validate_openai_yaml.py
 python3 scripts/validate_skill_quality.py
 ```
 

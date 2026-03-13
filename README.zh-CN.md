@@ -67,7 +67,6 @@ skills/
 ## 元数据校验
 
 ```bash
-python3 scripts/validate_openai_yaml.py
 python3 scripts/validate_skill_quality.py
 ```
 
