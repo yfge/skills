@@ -1,6 +1,6 @@
 # Skill Index
 
-Total skills: **4**
+Total skills: **5**
 
 | Skill | One-liner | Category | Maturity |
 |---|---|---|---|
@@ -8,3 +8,4 @@ Total skills: **4**
 | [ai-shifu-lesson-script-generator](./skills/ai-shifu-lesson-script-generator/SKILL.md) | Generate runnable lesson-level MarkdownFlow scripts from structured lesson inputs. | lesson-script-generation | beta |
 | [ai-shifu-lesson-script-optimizer](./skills/ai-shifu-lesson-script-optimizer/SKILL.md) | Audit and optimize existing MarkdownFlow teaching prompts while preserving runtime stability. | lesson-script-optimization | beta |
 | [ai-shifu-transcript-to-lessons](./skills/ai-shifu-transcript-to-lessons/SKILL.md) | Convert transcripts or long documents into lesson-by-lesson MarkdownFlow teaching scripts. | lesson-orchestration | beta |
+| [ai-shifu-course-manager](./skills/ai-shifu-course-manager/SKILL.md) | Deploy, manage, and sync MDF course files to the AI-Shifu platform. | course-deployment | beta |

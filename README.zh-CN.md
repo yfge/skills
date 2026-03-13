@@ -2,7 +2,7 @@
 
 [English README](./README.md)
 
-本仓库聚焦 MarkdownFlow 课程制作，包含 4 个核心 skills。
+本仓库聚焦 MarkdownFlow 课程制作与部署，包含 5 个核心 skills。
 
 ## 包含的 Skills
 
@@ -10,8 +10,9 @@
 - `ai-shifu-transcript-to-lessons`：将逐字稿或文档转换为逐课节 MarkdownFlow 脚本。
 - `ai-shifu-lesson-script-generator`：从结构化课节输入生成可运行授课提示词。
 - `ai-shifu-lesson-script-optimizer`：审计并优化已有授课提示词的可执行性与稳定性。
+- `ai-shifu-course-manager`：将 MDF 课程文件部署、管理并同步到 AI 师傅平台。
 
-每个 skill 都有可运行示例，位于 `skills/<slug>/examples/`。
+四个课程创作 skill 都有可运行示例，位于 `skills/<slug>/examples/`。
 
 ## 仓库结构
 
@@ -21,6 +22,7 @@ skills/
   ai-shifu-transcript-to-lessons/
   ai-shifu-lesson-script-generator/
   ai-shifu-lesson-script-optimizer/
+  ai-shifu-course-manager/
 ```
 
 ## 使用说明
@@ -84,6 +86,16 @@ python3 scripts/validate_skill_quality.py
 - `bilingual_output`（`true|false`）
 - `term_policy`（`preserve|translate|mixed`）
 - `quote_policy`（`translate_only|original_plus_translation`）
+
+## 课程部署
+
+MarkdownFlow 脚本就绪后，使用 `ai-shifu-course-manager` 将课程部署到 AI 师傅平台：
+
+1. 从本地课程目录构建导入文件：`build --course-dir ./course-a/`
+2. 导入到平台：`import --new --json-file ./course-a/shifu-import.json`
+3. 发布课程：`publish <shifu_bid>`
+
+完整 CLI 参考详见 [Course Manager SKILL.md](./skills/ai-shifu-course-manager/SKILL.md)。
 
 ## AI 师傅
 
