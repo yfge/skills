@@ -115,8 +115,33 @@ def fmt_time(ts):
 
 
 # ── Login ──────────────────────────────────────────────────────────────────────
+def _login_post(base_url, path, payload, error_prefix):
+    """POST to a user-auth endpoint and return parsed JSON, exit on failure."""
+    resp = requests.post(
+        f"{base_url}{path}",
+        json=payload,
+        headers={"Content-Type": "application/json"},
+        timeout=30,
+    )
+    if not resp.ok:
+        print(f"{error_prefix} (HTTP {resp.status_code}): {resp.text[:200]}")
+        sys.exit(1)
+    data = resp.json()
+    if data.get("code") != 0:
+        print(f"{error_prefix}: {data}")
+        sys.exit(1)
+    return data
+
+
 def cmd_login(args):
     """SMS login and save token (non-interactive two-step flow)."""
+    # Global region does not support SMS login via CLI
+    if args.region == "global":
+        print("Error: CLI login is not supported for the global region.")
+        print("Please log in manually at https://app.ai-shifu.com,")
+        print("then set SHIFU_TOKEN and SHIFU_BASE_URL in .env or use --token.")
+        sys.exit(1)
+
     # Resolve base_url: --base-url > --region mapping > env
     base_url = args.base_url
     if not base_url and args.region:
@@ -134,23 +159,13 @@ def cmd_login(args):
         sys.exit(1)
 
     sms_code = args.sms_code
+    masked = phone[:3] + "****" + phone[-4:] if len(phone) >= 7 else phone
 
     if sms_code:
         # Step 2: Verify code and save token
         print("Verifying code...")
-        resp = requests.post(
-            f"{base_url}/api/user/verify_sms_code",
-            json={"mobile": phone, "sms_code": sms_code},
-            headers={"Content-Type": "application/json"},
-            timeout=30,
-        )
-        if not resp.ok:
-            print(f"Verification failed (HTTP {resp.status_code}): {resp.text[:200]}")
-            sys.exit(1)
-        data = resp.json()
-        if data.get("code") != 0:
-            print(f"Verification failed: {data}")
-            sys.exit(1)
+        data = _login_post(base_url, "/api/user/verify_sms_code",
+                           {"mobile": phone, "sms_code": sms_code}, "Verification failed")
 
         token = data.get("data")
         if not token:
@@ -167,21 +182,10 @@ def cmd_login(args):
         print(f"Login successful! Token saved to {ENV_FILE}")
     else:
         # Step 1: Send SMS code only, then exit
-        print(f"Sending SMS code to {phone}...")
-        resp = requests.post(
-            f"{base_url}/api/user/send_sms_code",
-            json={"mobile": phone},
-            headers={"Content-Type": "application/json"},
-            timeout=30,
-        )
-        if not resp.ok:
-            print(f"Failed to send SMS (HTTP {resp.status_code}): {resp.text[:200]}")
-            sys.exit(1)
-        data = resp.json()
-        if data.get("code") != 0:
-            print(f"Failed to send SMS: {data}")
-            sys.exit(1)
-        print(f"SMS code sent to {phone}. "
+        print(f"Sending SMS code to {masked}...")
+        _login_post(base_url, "/api/user/send_sms_code",
+                    {"mobile": phone}, "Failed to send SMS")
+        print(f"SMS code sent to {masked}. "
               f"Run again with --sms-code <code> to complete login.")
 
 
