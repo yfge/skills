@@ -40,14 +40,18 @@ python3 {skillDir}/scripts/shifu-cli.py <command>
 Run login once — the token persists in `{skillDir}/.env` for subsequent commands:
 
 ```bash
-login --phone 13800138000 --base-url https://app.ai-shifu.cn
+# Step 1: Send SMS verification code
+login --phone 13800138000 --region cn
+
+# Step 2: Complete login with the code
+login --phone 13800138000 --region cn --sms-code 123456
 ```
+
+Region options: `cn` (中国大陆, maps to `https://app.ai-shifu.cn`) or `global` (非中国大陆, maps to `https://app.ai-shifu.com`). You can also use `--base-url` to override the URL directly.
 
 Alternatively, set environment variables or CLI flags:
 - `--base-url` or `SHIFU_BASE_URL` in `.env`
 - `--token` or `SHIFU_TOKEN` in `.env`
-
-Authentication uses Cookie (`Cookie: token=<JWT>`), not Bearer. The API prefix is `/api/shifu` (not `/api/v1`).
 
 ### Query Commands
 
@@ -112,16 +116,20 @@ unarchive <shifu_bid>     # Restore archived course
 
 ### Login Flow
 
-When no valid token is available, guide the user through SMS login interactively:
+When no valid token is available, guide the user through login:
 
-1. Ask the user for their AI-Shifu registered phone number
-2. Send verification code: `POST {base_url}/api/user/send_sms_code` with `{"mobile": "<phone>"}`
-3. Ask the user to reply with the code they received
-4. Verify: `POST {base_url}/api/user/verify_sms_code` with `{"mobile": "<phone>", "sms_code": "<code>"}`
-5. Extract the JWT token from `response.data`
-6. Save the token and proceed with the requested operation
+1. Ask the user to choose their region:
+   - 1: 中国大陆用户
+   - 2: 非中国大陆用户
+2. Ask for their registered phone number
+3. Send SMS code:
+   `python3 {skillDir}/scripts/shifu-cli.py login --phone <phone> --region <cn|global>`
+4. Ask the user for the verification code they received
+5. Complete login:
+   `python3 {skillDir}/scripts/shifu-cli.py login --phone <phone> --region <cn|global> --sms-code <code>`
+6. Token is automatically saved — proceed with the requested operation
 
-Do not run the CLI's interactive `input()` mode. Instead, handle the login conversation yourself and pass the token to the CLI via `--token` or by writing it to `.env`.
+Always use CLI commands. Never make raw HTTP/API calls directly.
 
 ### Common Workflows
 

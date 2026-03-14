@@ -17,6 +17,11 @@ from dotenv import load_dotenv, set_key
 # ── Constants ──────────────────────────────────────────────────────────────────
 ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
+REGION_URLS = {
+    "cn": "https://app.ai-shifu.cn",
+    "global": "https://app.ai-shifu.com",
+}
+
 
 # ── Shared Infrastructure ──────────────────────────────────────────────────────
 def load_env():
@@ -111,10 +116,16 @@ def fmt_time(ts):
 
 # ── Login ──────────────────────────────────────────────────────────────────────
 def cmd_login(args):
-    """SMS login and save token."""
-    base_url = (args.base_url or os.environ.get("SHIFU_BASE_URL", "")).rstrip("/")
+    """SMS login and save token (non-interactive two-step flow)."""
+    # Resolve base_url: --base-url > --region mapping > env
+    base_url = args.base_url
+    if not base_url and args.region:
+        base_url = REGION_URLS.get(args.region)
     if not base_url:
-        print("Error: --base-url is required for login")
+        base_url = os.environ.get("SHIFU_BASE_URL", "")
+    base_url = base_url.rstrip("/")
+    if not base_url:
+        print("Error: --region or --base-url is required for login")
         sys.exit(1)
 
     phone = args.phone
@@ -122,52 +133,56 @@ def cmd_login(args):
         print("Error: --phone is required for login")
         sys.exit(1)
 
-    # Step 1: Send SMS
-    print(f"Sending SMS code to {phone}...")
-    resp = requests.post(
-        f"{base_url}/api/user/send_sms_code",
-        json={"mobile": phone},
-        headers={"Content-Type": "application/json"},
-        timeout=30,
-    )
-    if not resp.ok:
-        print(f"Failed to send SMS (HTTP {resp.status_code}): {resp.text[:200]}")
-        sys.exit(1)
-    data = resp.json()
-    if data.get("code") != 0:
-        print(f"Failed to send SMS: {data}")
-        sys.exit(1)
-    print("SMS code sent. Check your phone.")
+    sms_code = args.sms_code
 
-    # Step 2: Get code from user
-    sms_code = input("Enter SMS code: ").strip()
-    if not sms_code:
-        print("No code entered.")
-        sys.exit(1)
+    if sms_code:
+        # Step 2: Verify code and save token
+        print("Verifying code...")
+        resp = requests.post(
+            f"{base_url}/api/user/verify_sms_code",
+            json={"mobile": phone, "sms_code": sms_code},
+            headers={"Content-Type": "application/json"},
+            timeout=30,
+        )
+        if not resp.ok:
+            print(f"Verification failed (HTTP {resp.status_code}): {resp.text[:200]}")
+            sys.exit(1)
+        data = resp.json()
+        if data.get("code") != 0:
+            print(f"Verification failed: {data}")
+            sys.exit(1)
 
-    # Step 3: Verify
-    print("Verifying code...")
-    resp = requests.post(
-        f"{base_url}/api/user/verify_sms_code",
-        json={"mobile": phone, "sms_code": sms_code},
-        headers={"Content-Type": "application/json"},
-        timeout=30,
-    )
-    if not resp.ok:
-        print(f"Verification failed (HTTP {resp.status_code}): {resp.text[:200]}")
-        sys.exit(1)
-    data = resp.json()
-    if data.get("code") != 0:
-        print(f"Verification failed: {data}")
-        sys.exit(1)
+        token = data.get("data")
+        if not token:
+            print(f"No token in response: {data}")
+            sys.exit(1)
+        # API may return token as a dict (e.g. {"token": "..."}) or a plain string
+        if isinstance(token, dict):
+            token = token.get("token", "")
+        if not token:
+            print(f"No token string found in response data: {data}")
+            sys.exit(1)
 
-    token = data.get("data")
-    if not token:
-        print(f"No token in response: {data}")
-        sys.exit(1)
-
-    save_env(token, base_url)
-    print(f"Login successful! Token saved to {ENV_FILE}")
+        save_env(token, base_url)
+        print(f"Login successful! Token saved to {ENV_FILE}")
+    else:
+        # Step 1: Send SMS code only, then exit
+        print(f"Sending SMS code to {phone}...")
+        resp = requests.post(
+            f"{base_url}/api/user/send_sms_code",
+            json={"mobile": phone},
+            headers={"Content-Type": "application/json"},
+            timeout=30,
+        )
+        if not resp.ok:
+            print(f"Failed to send SMS (HTTP {resp.status_code}): {resp.text[:200]}")
+            sys.exit(1)
+        data = resp.json()
+        if data.get("code") != 0:
+            print(f"Failed to send SMS: {data}")
+            sys.exit(1)
+        print(f"SMS code sent to {phone}. "
+              f"Run again with --sms-code <code> to complete login.")
 
 
 # ── List ───────────────────────────────────────────────────────────────────────
@@ -967,6 +982,10 @@ def build_parser():
     p = sub.add_parser("login", parents=[parent_parser],
                        help="SMS login and save token")
     p.add_argument("--phone", required=True, help="Phone number for SMS login")
+    p.add_argument("--sms-code", default=None,
+                   help="SMS verification code (skip interactive input)")
+    p.add_argument("--region", choices=["cn", "global"], default=None,
+                   help="Region: cn (中国大陆) or global (非中国大陆)")
 
     # ── list ──
     sub.add_parser("list", parents=[parent_parser], help="List all courses")
