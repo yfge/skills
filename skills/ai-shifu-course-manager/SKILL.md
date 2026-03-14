@@ -121,13 +121,15 @@ When no valid token is available, guide the user through login:
 1. Ask the user to choose their region:
    - 1: 中国大陆用户
    - 2: 非中国大陆用户
-2. Ask for their registered phone number
-3. Send SMS code:
-   `python3 {skillDir}/scripts/shifu-cli.py login --phone <phone> --region <cn|global>`
-4. Ask the user for the verification code they received
-5. Complete login:
-   `python3 {skillDir}/scripts/shifu-cli.py login --phone <phone> --region <cn|global> --sms-code <code>`
-6. Token is automatically saved — proceed with the requested operation
+2. **If the user chooses 非中国大陆用户**: CLI login is not supported for this region. Tell the user to log in manually at `https://app.ai-shifu.com`, copy their token from the browser, and set it via `--token` or by adding `SHIFU_TOKEN=<token>` and `SHIFU_BASE_URL=https://app.ai-shifu.com` to `{skillDir}/.env`. Then stop — do not proceed with the SMS flow.
+3. **If the user chooses 中国大陆用户**: continue with the SMS login flow below.
+4. Ask for their registered phone number
+5. Send SMS code:
+   `python3 {skillDir}/scripts/shifu-cli.py login --phone <phone> --region cn`
+6. Ask the user for the verification code they received
+7. Complete login:
+   `python3 {skillDir}/scripts/shifu-cli.py login --phone <phone> --region cn --sms-code <code>`
+8. Token is automatically saved — proceed with the requested operation
 
 Always use CLI commands. Never make raw HTTP/API calls directly.
 
