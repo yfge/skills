@@ -363,6 +363,18 @@ def cmd_update_meta(args):
     print(f"Updated metadata for {shifu_bid}")
 
 
+# ── Add Chapter ────────────────────────────────────────────────────────────────
+def cmd_add_chapter(args):
+    """Add a new top-level chapter to a course."""
+    base_url, token = resolve_auth(args)
+    shifu_bid = args.shifu_bid
+
+    result = api(base_url, token, "put", f"/shifus/{shifu_bid}/outlines",
+                 json={"name": args.name})
+    outline_bid = result.get("bid") or result.get("outline_item_bid")
+    print(f"Created chapter: {outline_bid} ({args.name})")
+
+
 # ── Add Lesson ─────────────────────────────────────────────────────────────────
 def cmd_add_lesson(args):
     """Add a new lesson to a course."""
@@ -377,7 +389,8 @@ def cmd_add_lesson(args):
     result = api(base_url, token, "put", f"/shifus/{shifu_bid}/outlines",
                  json=outline_payload)
     outline_bid = result.get("bid") or result.get("outline_item_bid")
-    print(f"Created lesson: {outline_bid} ({args.name})")
+    parent_label = f" under {args.parent_bid}" if args.parent_bid else ""
+    print(f"Created lesson: {outline_bid} ({args.name}){parent_label}")
 
     # Write MDF content if provided
     if args.mdf_file:
@@ -1005,6 +1018,12 @@ def build_parser():
     p.add_argument("--system-prompt-file", default=None,
                    help="File containing system prompt")
 
+    # ── add-chapter ──
+    p = sub.add_parser("add-chapter", parents=[parent_parser],
+                       help="Add a new top-level chapter")
+    p.add_argument("shifu_bid", help="Course BID")
+    p.add_argument("--name", required=True, help="Chapter name")
+
     # ── add-lesson ──
     p = sub.add_parser("add-lesson", parents=[parent_parser],
                        help="Add a new lesson")
@@ -1012,7 +1031,7 @@ def build_parser():
     p.add_argument("--name", required=True, help="Lesson name")
     p.add_argument("--mdf-file", default=None, help="MDF content file")
     p.add_argument("--parent-bid", default=None,
-                   help="Parent outline BID (for nested structure)")
+                   help="Parent outline BID (chapter outline BID for nested structure)")
 
     # ── update-lesson ──
     p = sub.add_parser("update-lesson", parents=[parent_parser],
@@ -1099,6 +1118,7 @@ def main():
         "export": cmd_export,
         "create": cmd_create,
         "update-meta": cmd_update_meta,
+        "add-chapter": cmd_add_chapter,
         "add-lesson": cmd_add_lesson,
         "update-lesson": cmd_update_lesson,
         "rename-lesson": cmd_rename_lesson,

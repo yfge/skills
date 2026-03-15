@@ -63,7 +63,9 @@ export <shifu_bid> [-o file.json]             # Export course as JSON
 
 ```bash
 create --name "Title" [--description "Desc"]                              # Create empty course
-add-lesson <shifu_bid> --name "Name" --mdf-file lesson.md [--parent-bid]  # Add single lesson
+add-chapter <shifu_bid> --name "Chapter Name"                              # Create top-level chapter
+add-lesson <shifu_bid> --name "Name" --mdf-file lesson.md --parent-bid <chapter_bid>
+                                                                          # Add lesson under a chapter
 ```
 
 ### Update Commands
@@ -125,6 +127,16 @@ Do not run the CLI's interactive `input()` mode. Instead, handle the login conve
 
 ### Common Workflows
 
+**First upload of a lesson script (no course/chapter exists yet):**
+```bash
+create --name "Course Title" --description "..."            # Create the course first
+add-chapter <shifu_bid> --name "Chapter 1"                   # Always create a chapter
+add-lesson <shifu_bid> --name "Lesson 1" --mdf-file lesson.md --parent-bid <chapter_bid>
+show <shifu_bid>                                              # Verify chapter → lesson structure
+```
+
+Rule: when the user first asks to upload a lesson script, do not write into a random existing placeholder node. Create the course, create a new chapter, then create the lesson under that chapter and upload the MDF/lesson script into that newly created lesson.
+
 **View and update a single lesson:**
 ```bash
 list                                              # Find the course BID
@@ -174,7 +186,7 @@ publish <shifu_bid>
 Key fields:
 - `llm_system_prompt`: Course-level AI role definition (from system-prompt.md)
 - `type: 401`: Regular lesson node
-- `parent_bid`: Empty string = chapter (top-level container); non-empty = lesson (child node with MDF content)
+- `parent_bid`: Empty string = chapter (top-level container); non-empty = lesson (child node with MDF content). For manual CLI creation, first create a chapter and then pass that chapter BID as `--parent-bid` when creating the lesson.
 - `content`: The MDF prompt content (this is the core teaching material)
 - `ask_enabled_status: 5101`: Enables learner questions
 
