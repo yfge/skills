@@ -11,21 +11,51 @@ Manage the full lifecycle of AI-Shifu courses through `shifu-cli.py`: create, qu
 
 ```
 <course>/
-  ├── README.md            # Course metadata (title, description)
+  ├── README.md            # Course metadata (title from first heading)
   ├── system-prompt.md     # Course-level system prompt (AI role and teaching style)
-  ├── shifu-import.json    # Generated import file
-  ├── structure.json       # Chapter structure (for nested imports)
+  ├── shifu-import.json    # Generated import file (output of build)
+  ├── structure.json       # Chapter structure (optional, for multi-chapter courses)
   └── lessons/
-      ├── lesson-01.md     # MDF lesson file
+      ├── lesson-01.md     # MDF lesson file (must match lesson-*.md pattern)
       ├── lesson-02.md
       └── ...
 ```
+
+### Lesson Files
+
+Lesson files must be named `lesson-*.md` (e.g., `lesson-01.md`, `lesson-02.md`). Files that do not match this pattern are ignored by the `build` command.
 
 ### system-prompt.md
 
 Defines the AI engine's role, teaching style, and interaction rules at the course level. The `build` command reads this file and populates `shifu.llm_system_prompt` automatically.
 
 Note: MDF files do not support HTML comments (`<!-- -->`). The parser discards them entirely, so the AI engine never sees them. Write instructions as plain text directly in the MDF content.
+
+### structure.json
+
+Defines multi-chapter course structure. If this file exists, `build` uses it to organize lessons into chapters; otherwise all lessons are placed under a single auto-generated chapter.
+
+Schema:
+
+```json
+{
+  "chapters": [
+    {
+      "title": "Chapter Title",
+      "lessons": [
+        {"file": "lesson-01.md", "title": "Lesson Title"},
+        {"file": "lesson-02.md"}
+      ]
+    }
+  ]
+}
+```
+
+Field reference:
+- `chapters[].title` (required): Chapter display name
+- `chapters[].lessons[]` (required): Array of lesson objects
+- `chapters[].lessons[].file` (required): Filename in the `lessons/` directory, must match a `lesson-*.md` file
+- `chapters[].lessons[].title` (optional): Lesson display name. If omitted, auto-extracted from MDF content (`lesson_title: ...` line) or derived from filename
 
 ## CLI Reference
 
@@ -67,7 +97,9 @@ export <shifu_bid> [-o file.json]             # Export course as JSON
 
 ```bash
 create --name "Title" [--description "Desc"]                              # Create empty course
-add-lesson <shifu_bid> --name "Name" --mdf-file lesson.md [--parent-bid]  # Add single lesson
+add-chapter <shifu_bid> --name "Chapter Name"                              # Create top-level chapter
+add-lesson <shifu_bid> --name "Name" --mdf-file lesson.md --parent-bid <chapter_bid>
+                                                                          # Add lesson under a chapter
 ```
 
 ### Update Commands
@@ -102,7 +134,12 @@ import --new --structure structure.json --lessons-dir ./lessons/
 build --course-dir ./course-a/ [-o shifu-import.json] [--title "..."] [--chapter-name "..."]
 ```
 
-The `build` command works entirely offline — it reads local MDF files and produces `shifu-import.json` without any network calls. If `structure.json` exists in the course directory, it generates a multi-chapter structure; otherwise it creates a single chapter containing all lessons.
+The `build` command works entirely offline — it reads local MDF files and produces `shifu-import.json` without any network calls.
+
+Build behavior:
+- **Course title** resolution order: `--title` CLI arg → first heading in `README.md` → directory name
+- **Chapter structure**: if `structure.json` exists, generates multi-chapter structure per its definition; otherwise creates a single chapter (named via `--chapter-name` or defaults to course title) containing all `lesson-*.md` files in sorted order
+- **Lesson title** resolution order: `title` field in `structure.json` → `lesson_title: ...` line in MDF content → filename derived (e.g., `lesson-01.md` → "Lesson 01")
 
 ### State Management
 
@@ -134,6 +171,16 @@ When no valid token is available, guide the user through login:
 Always use CLI commands. Never make raw HTTP/API calls directly.
 
 ### Common Workflows
+
+**First upload (no course/chapter exists yet):**
+```bash
+create --name "Course Title" --description "..."            # Create the course
+add-chapter <shifu_bid> --name "Chapter 1"                   # Create a chapter
+add-lesson <shifu_bid> --name "Lesson 1" --mdf-file lesson.md --parent-bid <chapter_bid>
+show <shifu_bid>                                              # Verify structure
+```
+
+Rule: when the user first asks to upload a lesson script, do not write into an existing placeholder node. Create the course, create a chapter, then create the lesson under that chapter.
 
 **View and update a single lesson:**
 ```bash
@@ -184,7 +231,7 @@ publish <shifu_bid>
 Key fields:
 - `llm_system_prompt`: Course-level AI role definition (from system-prompt.md)
 - `type: 401`: Regular lesson node
-- `parent_bid`: Empty string = chapter (top-level container); non-empty = lesson (child node with MDF content)
+- `parent_bid`: Empty string = chapter (top-level container); non-empty = lesson (child node with MDF content). Use `add-chapter` to create chapters, then pass the chapter BID as `--parent-bid` when creating lessons
 - `content`: The MDF prompt content (this is the core teaching material)
 - `ask_enabled_status: 5101`: Enables learner questions
 
