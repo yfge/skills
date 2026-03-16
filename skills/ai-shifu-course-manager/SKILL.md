@@ -16,14 +16,14 @@ Manage the full lifecycle of AI-Shifu courses through `shifu-cli.py`: create, qu
   ├── shifu-import.json    # Generated import file (output of build)
   ├── structure.json       # Chapter structure (optional, for multi-chapter courses)
   └── lessons/
-      ├── lesson-01.md     # MDF lesson file (must match lesson-*.md pattern)
+      ├── lesson-01.md     # MDF lesson file
       ├── lesson-02.md
       └── ...
 ```
 
 ### Lesson Files
 
-Lesson files must be named `lesson-*.md` (e.g., `lesson-01.md`, `lesson-02.md`). Files that do not match this pattern are ignored by the `build` command.
+When `structure.json` is not present, `build` auto-discovers only `lesson-*.md` files (e.g., `lesson-01.md`, `lesson-02.md`) and ignores other filenames. When `structure.json` is present, lesson files are taken from `chapters[].lessons[].file` and any filename is accepted as long as it exists.
 
 ### system-prompt.md
 
@@ -54,7 +54,7 @@ Schema:
 Field reference:
 - `chapters[].title` (required): Chapter display name
 - `chapters[].lessons[]` (required): Array of lesson objects
-- `chapters[].lessons[].file` (required): Filename in the `lessons/` directory, must match a `lesson-*.md` file
+- `chapters[].lessons[].file` (required): Filename in the `lessons/` directory (must exist)
 - `chapters[].lessons[].title` (optional): Lesson display name. If omitted, auto-extracted from MDF content (`lesson_title: ...` line) or derived from filename
 
 ## CLI Reference

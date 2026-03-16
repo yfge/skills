@@ -391,6 +391,10 @@ def cmd_add_chapter(args):
     result = api(base_url, token, "put", f"/shifus/{shifu_bid}/outlines",
                  json={"name": args.name})
     outline_bid = result.get("bid") or result.get("outline_item_bid")
+    if not outline_bid:
+        print(f"Error: chapter created but response did not include a BID", file=sys.stderr)
+        print(f"  Response: {json.dumps(result, ensure_ascii=False)}", file=sys.stderr)
+        sys.exit(1)
     print(f"Created chapter: {outline_bid} ({args.name})")
 
 
@@ -1053,8 +1057,8 @@ def build_parser():
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("--name", required=True, help="Lesson name")
     p.add_argument("--mdf-file", default=None, help="MDF content file")
-    p.add_argument("--parent-bid", default=None,
-                   help="Parent chapter BID (required for proper structure)", required=True)
+    p.add_argument("--parent-bid", required=True,
+                   help="Parent chapter BID (use add-chapter to create one first)")
 
     # ── update-lesson ──
     p = sub.add_parser("update-lesson", parents=[parent_parser],
