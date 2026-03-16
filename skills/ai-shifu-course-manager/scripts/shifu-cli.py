@@ -1054,7 +1054,7 @@ def build_parser():
     p.add_argument("--name", required=True, help="Lesson name")
     p.add_argument("--mdf-file", default=None, help="MDF content file")
     p.add_argument("--parent-bid", default=None,
-                   help="Parent chapter BID (required for proper structure)")
+                   help="Parent chapter BID (required for proper structure)", required=True)
 
     # ── update-lesson ──
     p = sub.add_parser("update-lesson", parents=[parent_parser],
