@@ -86,6 +86,7 @@ import <shifu_bid> --json-file course.json
 import --new --json-file course.json
 
 # One-step build + import from course directory
+import <shifu_bid> --course-dir ./course-a/ [--title "..."] [--chapter-name "..."]
 import --new --course-dir ./course-a/ [--title "..."] [--chapter-name "..."]
 
 # Local build only (offline, generates shifu-import.json)
