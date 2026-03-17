@@ -2,67 +2,64 @@
 
 [English README](./README.md)
 
-本仓库聚焦 MarkdownFlow 课程制作与部署，包含 5 个核心 skills。
+本仓库包含一个统一的 AI 师傅 skill，覆盖 MarkdownFlow 课程制作与部署全流程。
 
 ## 包含的 Skills
 
-- `ai-shifu-content-segmenter`：将杂乱课程素材清洗为稳定的语义课节片段。
-- `ai-shifu-transcript-to-lessons`：将逐字稿或文档转换为逐课节 MarkdownFlow 脚本。
-- `ai-shifu-lesson-script-generator`：从结构化课节输入生成可运行授课提示词。
-- `ai-shifu-lesson-script-optimizer`：审计并优化已有授课提示词的可执行性与稳定性。
-- `ai-shifu-course-manager`：将 MDF 课程文件部署、管理并同步到 AI 师傅平台。
+- `ai-shifu-course-creator`：通过五阶段流水线（分段、编排、生成、优化、部署）将原始课程素材转换为优化后的可运行 MarkdownFlow 授课脚本，并部署为 AI 师傅平台上的在线课程。
 
-四个课程创作 skill 都有可运行示例，位于 `skills/<slug>/examples/`。
+skill 有可运行示例，位于 `skills/ai-shifu-course-creator/examples/`。
 
 ## 仓库结构
 
 ```text
 skills/
-  ai-shifu-content-segmenter/
-  ai-shifu-transcript-to-lessons/
-  ai-shifu-lesson-script-generator/
-  ai-shifu-lesson-script-optimizer/
-  ai-shifu-course-manager/
+  ai-shifu-course-creator/
 ```
 
 ## 使用说明
 
-每个 skill 以 `SKILL.md` 作为行为定义。
-机器可读元数据位于 `skills/<skill-slug>/skill.yaml`。
+skill 以 `SKILL.md` 作为行为定义。
+机器可读元数据位于 `skills/ai-shifu-course-creator/skill.yaml`。
 
-## 课程生产路径
+## 课程生产与部署路径
 
 按控制粒度选择其一：
 
-### 路径 A：一键生成（推荐）
+### 路径 A：端到端（推荐）
 
-适合希望从原始素材快速得到可运行课程脚本的场景。
+适合希望从原始素材快速得到在线课程的场景。
 
 1. 准备素材（逐字稿或课程文档）。
-2. 运行 `ai-shifu-transcript-to-lessons`。
-3. 运行 `ai-shifu-lesson-script-optimizer` 做最终质量加固。
+2. 运行 Phase 1–4 生成优化后的 MarkdownFlow 课节脚本。
+3. 运行 Phase 5 构建、导入并发布到 AI 师傅平台。
 
 预期产物：
+- 结构化分段
 - 分课节 MarkdownFlow 脚本
 - 课程索引与全局变量表
 - 优化后脚本与风险报告
+- AI 师傅平台上的在线课程
 
-注意：
-- `ai-shifu-transcript-to-lessons` 已内置分段与脚本生成编排。
-- 除非你要定向重生成某些课节，否则不要重复运行 `ai-shifu-lesson-script-generator`。
+### 路径 B：仅创作
 
-### 路径 B：模块化生产（高级）
+适合只需要优化后 MDF 脚本而不部署的场景。子路径：
+- **仅分段**：Phase 1 生成语义分段供人工审核。
+- **仅生成**：Phase 3 基于已有分段生成课节脚本。
+- **仅优化**：Phase 4 审计并改进现有脚本。
 
-适合需要分阶段精细控制的场景。
+### 路径 C：仅部署
 
-1. 运行 `ai-shifu-content-segmenter` 生成语义分段与不可变块索引。
-2. 运行 `ai-shifu-lesson-script-generator`，按课节定向生成脚本。
-3. 运行 `ai-shifu-lesson-script-optimizer`，加固交互逻辑和运行稳定性。
+适合已有 MDF 文件需要部署的场景：
 
-预期产物：
-- 结构化分段 JSON
-- 可运行 MarkdownFlow 课节脚本
-- 带问题级变更追踪的优化脚本
+1. 将 MDF 文件组织到课程目录中。
+2. 运行 `build --course-dir ./course-a/` 生成导入文件。
+3. 运行 `import --new --json-file ./course-a/shifu-import.json` 创建课程。
+4. 运行 `publish <shifu_bid>` 发布上线。
+
+### 路径 D：管理已有课程
+
+使用管理命令（list/show/update/rename/reorder/delete/publish/archive）操作平台上已有的课程。
 
 ## 元数据校验
 
@@ -85,16 +82,6 @@ python3 scripts/validate_skill_quality.py
 - `bilingual_output`（`true|false`）
 - `term_policy`（`preserve|translate|mixed`）
 - `quote_policy`（`translate_only|original_plus_translation`）
-
-## 课程部署
-
-MarkdownFlow 脚本就绪后，使用 `ai-shifu-course-manager` 将课程部署到 AI 师傅平台：
-
-1. 从本地课程目录构建导入文件：`build --course-dir ./course-a/`
-2. 导入到平台：`import --new --json-file ./course-a/shifu-import.json`
-3. 发布课程：`publish <shifu_bid>`
-
-完整 CLI 参考详见 [Course Manager SKILL.md](./skills/ai-shifu-course-manager/SKILL.md)。
 
 ## AI 师傅
 

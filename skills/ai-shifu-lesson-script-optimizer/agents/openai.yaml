@@ -1,4 +1,0 @@
-interface:
-  display_name: "Lesson Script Optimizer"
-  short_description: "Audit and improve existing MarkdownFlow teaching scripts with minimal safe edits"
-  default_prompt: "Use $ai-shifu-lesson-script-optimizer to audit this script against source material, fix high-risk issues first, and return a structured change list plus risk summary."

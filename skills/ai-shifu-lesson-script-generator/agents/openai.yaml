@@ -1,4 +1,0 @@
-interface:
-  display_name: "Lesson Script Generator"
-  short_description: "Generate runnable MarkdownFlow lesson scripts from structured lesson segments"
-  default_prompt: "Use $ai-shifu-lesson-script-generator to generate a runnable MarkdownFlow lesson script with safe interactions and stable variable reuse."

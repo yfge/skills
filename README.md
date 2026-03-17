@@ -2,67 +2,64 @@
 
 [中文 README](./README.zh-CN.md)
 
-A consolidated repository of five core AI-Shifu skills for MarkdownFlow course production and deployment.
+A unified AI-Shifu skill for MarkdownFlow course production and deployment.
 
 ## Included Skills
 
-- `ai-shifu-content-segmenter`: clean noisy source material into stable semantic lesson segments.
-- `ai-shifu-transcript-to-lessons`: convert transcripts or documents into lesson-by-lesson MarkdownFlow scripts.
-- `ai-shifu-lesson-script-generator`: generate runnable lesson prompts from structured lesson inputs.
-- `ai-shifu-lesson-script-optimizer`: audit and improve existing MarkdownFlow teaching prompts.
-- `ai-shifu-course-manager`: deploy, manage, and sync MDF course files to the AI-Shifu platform.
+- `ai-shifu-course-creator`: convert raw course material into optimized MarkdownFlow teaching scripts and deploy them as live AI-Shifu courses through a five-phase pipeline (segmentation, orchestration, generation, optimization, deployment).
 
-The four authoring skills include runnable examples under `skills/<slug>/examples/`.
+The skill includes runnable examples under `skills/ai-shifu-course-creator/examples/`.
 
 ## Repository Layout
 
 ```text
 skills/
-  ai-shifu-content-segmenter/
-  ai-shifu-transcript-to-lessons/
-  ai-shifu-lesson-script-generator/
-  ai-shifu-lesson-script-optimizer/
-  ai-shifu-course-manager/
+  ai-shifu-course-creator/
 ```
 
 ## Usage
 
-Each skill keeps `SKILL.md` as the behavior source of truth.
-Core skill metadata lives in `skills/<skill-slug>/skill.yaml`.
+The skill keeps `SKILL.md` as the behavior source of truth.
+Core skill metadata lives in `skills/ai-shifu-course-creator/skill.yaml`.
 
-## Course Authoring Paths
+## Course Authoring & Deployment Paths
 
 Choose one path based on control needs:
 
-### Path A: One-Shot Generation (Recommended)
+### Path A: End-to-End (Recommended)
 
-Use when you want the fastest route from raw material to runnable lesson scripts.
+Use when you want the fastest route from raw material to a live deployed course.
 
 1. Prepare source material (transcript or course documents).
-2. Run `ai-shifu-transcript-to-lessons`.
-3. Run `ai-shifu-lesson-script-optimizer` for final quality hardening.
+2. Run Phase 1–4 to produce optimized MarkdownFlow lesson scripts.
+3. Run Phase 5 to build, import, and publish to the AI-Shifu platform.
 
 Expected artifacts:
+- Structured segmentation
 - Lesson-by-lesson MarkdownFlow scripts
 - Course index and global variable table
 - Optimized lesson prompts and risk report
+- Live course on the AI-Shifu platform
 
-Note:
-- `ai-shifu-transcript-to-lessons` already orchestrates segmentation and lesson script generation internally.
-- Do not run `ai-shifu-lesson-script-generator` again unless you are intentionally regenerating selected lessons.
+### Path B: Author Only
 
-### Path B: Modular Authoring (Advanced)
+Use when you need optimized MDF scripts without deploying. Sub-paths:
+- **Segment only**: Phase 1 for semantic segments and manual review.
+- **Generate only**: Phase 3 on pre-existing segments.
+- **Optimize only**: Phase 4 to audit and improve existing scripts.
 
-Use when you need precise control over each stage.
+### Path C: Deploy Only
 
-1. Run `ai-shifu-content-segmenter` to produce semantic segments and immutable-block indexes.
-2. Run `ai-shifu-lesson-script-generator` lesson by lesson on selected segments.
-3. Run `ai-shifu-lesson-script-optimizer` to harden interaction logic and runtime stability.
+Use when you have pre-existing MDF files ready to deploy:
 
-Expected artifacts:
-- Structured segmentation JSON
-- Runnable lesson MarkdownFlow scripts
-- Optimized scripts with issue-level change traceability
+1. Organize MDF files in a course directory.
+2. Run `build --course-dir ./course-a/` to generate the import file.
+3. Run `import --new --json-file ./course-a/shifu-import.json` to create the course.
+4. Run `publish <shifu_bid>` to make it live.
+
+### Path D: Manage Existing
+
+Use management commands (list, show, update, rename, reorder, delete, publish, archive) on courses already on the platform.
 
 ## Validate Metadata
 
@@ -85,16 +82,6 @@ Recommended controls for predictable language output:
 - `bilingual_output` (`true|false`)
 - `term_policy` (`preserve|translate|mixed`)
 - `quote_policy` (`translate_only|original_plus_translation`)
-
-## Course Deployment
-
-Once your MarkdownFlow scripts are ready, use `ai-shifu-course-manager` to deploy them to the AI-Shifu platform:
-
-1. Build the import file from a local course directory: `build --course-dir ./course-a/`
-2. Import to the platform: `import --new --json-file ./course-a/shifu-import.json`
-3. Publish the course: `publish <shifu_bid>`
-
-See the [Course Manager SKILL.md](./skills/ai-shifu-course-manager/SKILL.md) for full CLI reference.
 
 ## AI-Shifu
 

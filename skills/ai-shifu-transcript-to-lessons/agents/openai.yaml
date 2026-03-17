@@ -1,4 +1,0 @@
-interface:
-  display_name: "Transcript-to-Lessons Orchestrator"
-  short_description: "Convert transcripts into lesson scripts with stable MarkdownFlow gating"
-  default_prompt: "Use $ai-shifu-transcript-to-lessons to convert the source material into lesson scripts, preserve code and images, and return course index plus variable table."
