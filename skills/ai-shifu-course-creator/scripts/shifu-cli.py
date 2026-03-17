@@ -365,7 +365,6 @@ def cmd_update_meta(args):
         "avatar": current.get("avatar", ""),
         "keywords": keywords,
         "model": current.get("model", ""),
-        "price": current.get("price", 0.5),
         "temperature": current.get("temperature", 0.3),
         "system_prompt": system_prompt,
         "tts_enabled": current.get("tts_enabled", False),
@@ -377,6 +376,9 @@ def cmd_update_meta(args):
         "tts_emotion": current.get("tts_emotion", ""),
         "use_learner_language": current.get("use_learner_language", False),
     }
+    price = current.get("price")
+    if price and price > 0:
+        payload["price"] = price
 
     api(base_url, token, "post", f"/shifus/{shifu_bid}/detail", json=payload)
     print(f"Updated metadata for {shifu_bid}")
@@ -516,9 +518,13 @@ def _import_flat(base_url, token, json_file, shifu_bid):
         "avatar": shifu_info.get("avatar_res_bid", ""),
         "keywords": keywords,
         "model": shifu_info.get("llm", ""),
-        "price": shifu_info.get("price", 0.5),
         "temperature": shifu_info.get("llm_temperature", 0.3),
         "system_prompt": shifu_info.get("llm_system_prompt", ""),
+    }
+    price = shifu_info.get("price")
+    if price and price > 0:
+        detail_payload["price"] = price
+    detail_payload.update({
         "tts_enabled": False,
         "tts_provider": "minimax",
         "tts_model": "",
@@ -528,12 +534,18 @@ def _import_flat(base_url, token, json_file, shifu_bid):
         "tts_emotion": "",
         "use_learner_language": False,
     }
-    result = api_safe(base_url, token, "post", f"/shifus/{shifu_bid}/detail",
-                      json=detail_payload)
-    if result is not None:
-        print("  Updated shifu detail")
-    else:
-        print("  Warning: failed to update shifu detail (non-fatal)")
+    for attempt in range(1, 4):
+        result = api_safe(base_url, token, "post", f"/shifus/{shifu_bid}/detail",
+                          json=detail_payload)
+        if result is not None:
+            print("  Updated shifu detail")
+            break
+        if attempt < 3:
+            print(f"  Warning: failed to update shifu detail (attempt {attempt}/3), retrying...")
+            time.sleep(1)
+        else:
+            print("Error: failed to update shifu detail after 3 attempts")
+            sys.exit(1)
 
     # Clean existing outlines (delete children first, then parents)
     tree = api_safe(base_url, token, "get", f"/shifus/{shifu_bid}/outlines")
@@ -619,84 +631,8 @@ def _import_flat(base_url, token, json_file, shifu_bid):
     return shifu_bid
 
 
-def _import_structured(base_url, token, structure_file, lessons_dir, shifu_bid):
-    """Import with chapter->lesson nesting (original shifu-structured-import.py)."""
-    with open(structure_file, "r", encoding="utf-8") as f:
-        structure = json.load(f)
-
-    title = structure["title"]
-    description = structure.get("description", "")
-
-    # Create or reuse shifu
-    if shifu_bid:
-        print(f"Using existing shifu: {shifu_bid}")
-    else:
-        print(f"Creating shifu: {title}")
-        result = api(base_url, token, "put", "/shifus",
-                     json={"name": title, "description": description})
-        shifu_bid = result.get("bid")
-        print(f"  Created: {shifu_bid}")
-
-    # Clean existing outlines (delete children first, then parents)
-    tree = api_safe(base_url, token, "get", f"/shifus/{shifu_bid}/outlines")
-    if tree and isinstance(tree, list):
-        for item in tree:
-            for child in item.get("children", []):
-                if child.get("bid"):
-                    result = api_safe(base_url, token, "delete",
-                                      f"/shifus/{shifu_bid}/outlines/{child['bid']}")
-                    if result is None:
-                        print(f"Error: failed to delete child outline: {child['bid']}")
-                        sys.exit(1)
-            if item.get("bid"):
-                result = api_safe(base_url, token, "delete",
-                                  f"/shifus/{shifu_bid}/outlines/{item['bid']}")
-                if result is None:
-                    print(f"Error: failed to delete outline: {item.get('name', item['bid'])}")
-                    sys.exit(1)
-                print(f"  Deleted: {item.get('name', item['bid'])}")
-
-    # Create chapters and lessons
-    for ch_idx, chapter in enumerate(structure["chapters"]):
-        ch_title = chapter["title"]
-        ch_result = api(base_url, token, "put", f"/shifus/{shifu_bid}/outlines",
-                        json={"name": ch_title})
-        ch_bid = ch_result.get("bid")
-        print(f"\nChapter {ch_idx+1}: {ch_title} ({ch_bid})")
-
-        for _ls_idx, lesson in enumerate(chapter["lessons"]):
-            ls_title = lesson["title"]
-            ls_file = lesson["file"]
-
-            filepath = safe_join_path(lessons_dir, ls_file)
-            if filepath is None:
-                continue
-            if not os.path.exists(filepath):
-                print(f"  Warning: file not found: {filepath}, skipping")
-                continue
-
-            with open(filepath, "r", encoding="utf-8") as f:
-                content = f.read()
-
-            ls_result = api(base_url, token, "put", f"/shifus/{shifu_bid}/outlines",
-                            json={"name": ls_title, "parent_bid": ch_bid})
-            ls_bid = ls_result.get("bid")
-            print(f"  {ls_title} ({ls_bid})")
-
-            api(base_url, token, "post",
-                f"/shifus/{shifu_bid}/outlines/{ls_bid}/mdflow",
-                json={"data": content})
-            print(f"    MDF saved ({len(content)} chars)")
-            time.sleep(0.3)
-
-    print(f"\nDone! Shifu: {shifu_bid}")
-    print(f"  Course: {title}")
-    print(f"  URL: {base_url}/shifu/{shifu_bid}")
-    return shifu_bid
-
-
 def cmd_import(args):
-    """Import a course (flat JSON or structured chapters)."""
+    """Import a course from JSON file or course directory."""
     if args.new and args.shifu_bid:
         print("Error: omit <shifu_bid> when using --new")
         sys.exit(1)
@@ -705,20 +641,22 @@ def cmd_import(args):
         sys.exit(1)
 
     base_url, token = resolve_auth(args)
-
-    # Determine shifu_bid: --new creates a new one, otherwise use positional
     shifu_bid = None if args.new else args.shifu_bid
 
-    if args.structure:
-        if not args.lessons_dir:
-            print("Error: --lessons-dir is required when using --structure")
-            sys.exit(1)
-        _import_structured(base_url, token, args.structure,
-                           args.lessons_dir, shifu_bid)
+    if args.course_dir:
+        # Build JSON first, then import
+        json_file = _build_import_json(
+            course_dir=args.course_dir,
+            title=getattr(args, "title", None),
+            description=getattr(args, "description", None),
+            keywords=getattr(args, "keywords", None),
+            chapter_name=getattr(args, "chapter_name", None),
+        )
+        _import_flat(base_url, token, json_file, shifu_bid)
     elif args.json_file:
         _import_flat(base_url, token, args.json_file, shifu_bid)
     else:
-        print("Error: provide --json-file or --structure")
+        print("Error: provide --json-file or --course-dir")
         sys.exit(1)
 
 
@@ -732,9 +670,9 @@ def _extract_lesson_title(content, filename):
     return name.replace("-", " ").title()
 
 
-def cmd_build(args):
-    """Build import JSON from local course directory (no network needed)."""
-    course_dir = args.course_dir
+def _build_import_json(course_dir, title=None, description=None,
+                       keywords=None, chapter_name=None, output_path=None):
+    """Build import JSON from a local course directory. Returns the output file path."""
     lessons_dir = os.path.join(course_dir, "lessons")
     if not os.path.isdir(lessons_dir):
         print(f"Error: lessons directory not found: {lessons_dir}")
@@ -759,8 +697,7 @@ def cmd_build(args):
 
     shifu_bid = str(uuid.uuid4()).replace("-", "")
 
-    # Determine title: CLI arg > README > directory name
-    title = args.title
+    # Determine title: explicit arg > README > directory name
     if not title:
         readme_path = os.path.join(course_dir, "README.md")
         if os.path.exists(readme_path):
@@ -854,7 +791,7 @@ def cmd_build(args):
     else:
         # Single-chapter mode: wrap all lessons under one chapter
         chapter_bid = str(uuid.uuid4()).replace("-", "")
-        chapter_title = args.chapter_name or title
+        chapter_title = chapter_name or title
 
         # Chapter item (container, no MDF content)
         outline_items.append({
@@ -921,8 +858,8 @@ def cmd_build(args):
         "shifu": {
             "shifu_bid": shifu_bid,
             "title": title,
-            "keywords": args.keywords or "",
-            "description": args.description or "",
+            "keywords": keywords or "",
+            "description": description or "",
             "avatar_res_bid": "",
             "llm": "",
             "llm_temperature": 0,
@@ -931,7 +868,6 @@ def cmd_build(args):
             "ask_llm": "",
             "ask_llm_temperature": 0.0,
             "ask_llm_system_prompt": "",
-            "price": 0.0,
         },
         "outline_items": outline_items,
         "structure": {
@@ -944,7 +880,6 @@ def cmd_build(args):
     }
 
     # Output
-    output_path = args.output
     if not output_path:
         output_path = os.path.join(course_dir, "shifu-import.json")
 
@@ -958,6 +893,19 @@ def cmd_build(args):
     print(f"  Course: {title}")
     print(f"  Chapters: {len(chapters)}, Lessons: {len(lessons)}")
     print(f"  Shifu BID: {shifu_bid}")
+    return output_path
+
+
+def cmd_build(args):
+    """Build import JSON from local course directory (no network needed)."""
+    _build_import_json(
+        course_dir=args.course_dir,
+        title=args.title,
+        description=args.description,
+        keywords=args.keywords,
+        chapter_name=args.chapter_name,
+        output_path=args.output,
+    )
 
 
 # ── Publish / Archive / Unarchive ──────────────────────────────────────────────
@@ -1089,14 +1037,22 @@ def build_parser():
 
     # ── import ──
     p = sub.add_parser("import", parents=[parent_parser],
-                       help="Import a course (flat JSON or structured)")
+                       help="Import a course from JSON file or course directory")
     p.add_argument("shifu_bid", nargs="?", default=None,
                    help="Existing course BID (omit with --new to create)")
     p.add_argument("--new", action="store_true",
                    help="Create a new course instead of updating")
     p.add_argument("--json-file", default=None, help="Flat import JSON file")
-    p.add_argument("--structure", default=None, help="Structure JSON file")
-    p.add_argument("--lessons-dir", default=None, help="Lessons directory")
+    p.add_argument("--course-dir", default=None,
+                   help="Course directory (builds JSON then imports)")
+    p.add_argument("--title", default=None,
+                   help="Course title (only with --course-dir)")
+    p.add_argument("--description", default=None,
+                   help="Course description (only with --course-dir)")
+    p.add_argument("--keywords", default=None,
+                   help="Keywords, comma-separated (only with --course-dir)")
+    p.add_argument("--chapter-name", default=None,
+                   help="Chapter name (only with --course-dir)")
 
     # ── build ──
     p = sub.add_parser("build", help="Build import JSON from local course directory")
