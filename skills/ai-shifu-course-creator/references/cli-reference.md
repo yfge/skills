@@ -85,15 +85,15 @@ delete-lesson <shifu_bid> <outline_bid>
 import <shifu_bid> --json-file course.json
 import --new --json-file course.json
 
-# Nested import (chapter -> lesson structure)
-import <shifu_bid> --structure structure.json --lessons-dir ./lessons/
-import --new --structure structure.json --lessons-dir ./lessons/
+# One-step build + import from course directory
+import <shifu_bid> --course-dir ./course-a/ [--title "..."] [--chapter-name "..."]
+import --new --course-dir ./course-a/ [--title "..."] [--chapter-name "..."]
 
-# Local build (offline, generates shifu-import.json)
+# Local build only (offline, generates shifu-import.json)
 build --course-dir ./course-a/ [-o shifu-import.json] [--title "..."] [--chapter-name "..."]
 ```
 
-The `build` command works entirely offline — it reads local MDF files and produces `shifu-import.json` without any network calls.
+The `build` command works entirely offline — it reads local MDF files and produces `shifu-import.json` without any network calls. The `import --course-dir` option combines build + import in one step.
 
 Build behavior:
 - **Course title** resolution order: `--title` CLI arg -> first heading in `README.md` -> directory name
