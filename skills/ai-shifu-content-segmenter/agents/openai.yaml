@@ -1,4 +1,0 @@
-interface:
-  display_name: "Course Material Segmenter"
-  short_description: "Clean noisy course material and produce stable semantic lesson segments"
-  default_prompt: "Use $ai-shifu-content-segmenter to clean the source material, preserve code and image blocks, and output stable lesson segmentation candidates."

@@ -80,6 +80,21 @@ Each item:
 }
 ```
 
+## Phase 5 Artifacts
+
+4. `deployed_course_url`
+- Platform URL of the deployed course.
+
+5. `shifu_bid`
+- Course BID on the AI-Shifu platform.
+
+### `deployment_result` (object, optional)
+
+- `shifu_bid` (string, required)
+- `deployed_course_url` (string, required)
+- `lesson_count` (number, required)
+- `status` (string enum: `published|draft`, required)
+
 ## Delivery Guarantees
 
 - Stable schema across reruns.
