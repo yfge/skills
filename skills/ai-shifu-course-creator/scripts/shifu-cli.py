@@ -533,7 +533,7 @@ def _import_flat(base_url, token, json_file, shifu_bid):
         "tts_pitch": 0,
         "tts_emotion": "",
         "use_learner_language": False,
-    }
+    })
     for attempt in range(1, 4):
         result = api_safe(base_url, token, "post", f"/shifus/{shifu_bid}/detail",
                           json=detail_payload)
