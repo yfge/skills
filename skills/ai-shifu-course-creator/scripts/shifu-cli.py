@@ -44,7 +44,8 @@ def save_env(token, base_url=None):
 
 def resolve_auth(args):
     """Resolve base_url and token from CLI args or .env, exit on failure."""
-    base_url = getattr(args, "base_url", None) or os.environ.get("SHIFU_BASE_URL")
+    base_url = getattr(args, "base_url", None) or os.environ.get(
+        "SHIFU_BASE_URL")
     if not base_url:
         print("Error: --base-url is required (or set SHIFU_BASE_URL in .env)")
         sys.exit(1)
@@ -219,23 +220,26 @@ def cmd_list(args):
 
 # ── Show ───────────────────────────────────────────────────────────────────────
 def cmd_show(args):
-    """Show course detail / outline tree / MDF content."""
+    """Show course detail / outline tree / MarkdownFlow content."""
     base_url, token = resolve_auth(args)
     shifu_bid = args.shifu_bid
     outline_bid = args.outline_bid
 
     if outline_bid:
-        # Show MDF content for a specific lesson
+        # Show MarkdownFlow content for a specific lesson
         result = api(base_url, token, "get",
                      f"/shifus/{shifu_bid}/outlines/{outline_bid}/mdflow")
-        content = result.get("data", "") if isinstance(result, dict) else result
-        revision = result.get("revision", "") if isinstance(result, dict) else ""
+        content = result.get("data", "") if isinstance(
+            result, dict) else result
+        revision = result.get("revision", "") if isinstance(
+            result, dict) else ""
         if revision:
             print(f"# Revision: {revision}\n")
         print(content)
     else:
         # Show course detail + outline tree
-        detail = api_safe(base_url, token, "get", f"/shifus/{shifu_bid}/detail")
+        detail = api_safe(base_url, token, "get",
+                          f"/shifus/{shifu_bid}/detail")
         if detail:
             print(f"Course: {detail.get('name', '')}")
             print(f"BID:    {shifu_bid}")
@@ -268,7 +272,7 @@ def cmd_show(args):
 
 # ── History ────────────────────────────────────────────────────────────────────
 def cmd_history(args):
-    """Show MDF revision history for a lesson."""
+    """Show MarkdownFlow revision history for a lesson."""
     base_url, token = resolve_auth(args)
     result = api(base_url, token, "get",
                  f"/shifus/{args.shifu_bid}/outlines/{args.outline_bid}/mdflow/history")
@@ -361,7 +365,7 @@ def cmd_update_meta(args):
     payload = {
         "name": args.name if args.name is not None else current.get("name", ""),
         "description": args.description if args.description is not None
-                       else current.get("description", ""),
+        else current.get("description", ""),
         "avatar": current.get("avatar", ""),
         "keywords": keywords,
         "model": current.get("model", ""),
@@ -394,8 +398,10 @@ def cmd_add_chapter(args):
                  json={"name": args.name})
     outline_bid = result.get("bid") or result.get("outline_item_bid")
     if not outline_bid:
-        print(f"Error: chapter created but response did not include a BID", file=sys.stderr)
-        print(f"  Response: {json.dumps(result, ensure_ascii=False)}", file=sys.stderr)
+        print(f"Error: chapter created but response did not include a BID",
+              file=sys.stderr)
+        print(
+            f"  Response: {json.dumps(result, ensure_ascii=False)}", file=sys.stderr)
         sys.exit(1)
     print(f"Created chapter: {outline_bid} ({args.name})")
 
@@ -417,19 +423,19 @@ def cmd_add_lesson(args):
     parent_label = f" under {args.parent_bid}" if args.parent_bid else ""
     print(f"Created lesson: {outline_bid} ({args.name}){parent_label}")
 
-    # Write MDF content if provided
+    # Write MarkdownFlow content if provided
     if args.mdf_file:
         with open(args.mdf_file, "r", encoding="utf-8") as f:
             content = f.read()
         api(base_url, token, "post",
             f"/shifus/{shifu_bid}/outlines/{outline_bid}/mdflow",
             json={"data": content})
-        print(f"  MDF saved ({len(content)} chars)")
+        print(f"  MarkdownFlow saved ({len(content)} chars)")
 
 
 # ── Update Lesson ──────────────────────────────────────────────────────────────
 def cmd_update_lesson(args):
-    """Update MDF content for an existing lesson (with optimistic locking)."""
+    """Update MarkdownFlow content for an existing lesson (with optimistic locking)."""
     base_url, token = resolve_auth(args)
     shifu_bid = args.shifu_bid
     outline_bid = args.outline_bid
@@ -541,7 +547,8 @@ def _import_flat(base_url, token, json_file, shifu_bid):
             print("  Updated shifu detail")
             break
         if attempt < 3:
-            print(f"  Warning: failed to update shifu detail (attempt {attempt}/3), retrying...")
+            print(
+                f"  Warning: failed to update shifu detail (attempt {attempt}/3), retrying...")
             time.sleep(1)
         else:
             print("Error: failed to update shifu detail after 3 attempts")
@@ -556,15 +563,18 @@ def _import_flat(base_url, token, json_file, shifu_bid):
                     result = api_safe(base_url, token, "delete",
                                       f"/shifus/{shifu_bid}/outlines/{child['bid']}")
                     if result is None:
-                        print(f"Error: failed to delete child outline: {child['bid']}")
+                        print(
+                            f"Error: failed to delete child outline: {child['bid']}")
                         sys.exit(1)
             if item.get("bid"):
                 result = api_safe(base_url, token, "delete",
                                   f"/shifus/{shifu_bid}/outlines/{item['bid']}")
                 if result is None:
-                    print(f"Error: failed to delete outline: {item.get('name', item['bid'])}")
+                    print(
+                        f"Error: failed to delete outline: {item.get('name', item['bid'])}")
                     sys.exit(1)
-                print(f"  Deleted old outline: {item.get('name', item['bid'])}")
+                print(
+                    f"  Deleted old outline: {item.get('name', item['bid'])}")
 
     # Separate parents (chapters) and children (lessons) for two-pass creation
     parents = []
@@ -597,7 +607,7 @@ def _import_flat(base_url, token, json_file, shifu_bid):
             api(base_url, token, "post",
                 f"/shifus/{shifu_bid}/outlines/{new_bid}/mdflow",
                 json={"data": content})
-            print(f"    MDF saved ({len(content)} chars)")
+            print(f"    MarkdownFlow saved ({len(content)} chars)")
 
         created.append({"bid": new_bid, "title": title})
         time.sleep(0.3)
@@ -619,7 +629,7 @@ def _import_flat(base_url, token, json_file, shifu_bid):
             api(base_url, token, "post",
                 f"/shifus/{shifu_bid}/outlines/{new_bid}/mdflow",
                 json={"data": content})
-            print(f"    MDF saved ({len(content)} chars)")
+            print(f"    MarkdownFlow saved ({len(content)} chars)")
 
         created.append({"bid": new_bid, "title": title})
         time.sleep(0.3)
@@ -726,7 +736,7 @@ def _build_import_json(course_dir, title=None, description=None,
             ch_bid = str(uuid.uuid4()).replace("-", "")
             ch_title = ch_def["title"]
 
-            # Chapter item (container, no MDF content)
+            # Chapter item (container, no MarkdownFlow content)
             outline_items.append({
                 "outline_item_bid": ch_bid,
                 "title": ch_title,
@@ -758,7 +768,8 @@ def _build_import_json(course_dir, title=None, description=None,
                     content = f.read()
 
                 item_bid = str(uuid.uuid4()).replace("-", "")
-                ls_title = ls_def.get("title") or _extract_lesson_title(content, ls_file)
+                ls_title = ls_def.get(
+                    "title") or _extract_lesson_title(content, ls_file)
 
                 outline_items.append({
                     "outline_item_bid": item_bid,
@@ -793,7 +804,7 @@ def _build_import_json(course_dir, title=None, description=None,
         chapter_bid = str(uuid.uuid4()).replace("-", "")
         chapter_title = chapter_name or title
 
-        # Chapter item (container, no MDF content)
+        # Chapter item (container, no MarkdownFlow content)
         outline_items.append({
             "outline_item_bid": chapter_bid,
             "title": chapter_title,
@@ -926,7 +937,8 @@ def cmd_archive(args):
 def cmd_unarchive(args):
     """Unarchive a course."""
     base_url, token = resolve_auth(args)
-    api(base_url, token, "post", f"/shifus/{args.shifu_bid}/unarchive", json={})
+    api(base_url, token, "post",
+        f"/shifus/{args.shifu_bid}/unarchive", json={})
     print(f"Unarchived: {args.shifu_bid}")
 
 
@@ -961,14 +973,14 @@ def build_parser():
 
     # ── show ──
     p = sub.add_parser("show", parents=[parent_parser],
-                       help="Show course detail or lesson MDF content")
+                       help="Show course detail or lesson MarkdownFlow content")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", nargs="?", default=None,
                    help="Outline BID (omit to show tree)")
 
     # ── history ──
     p = sub.add_parser("history", parents=[parent_parser],
-                       help="Show MDF revision history")
+                       help="Show MarkdownFlow revision history")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", help="Outline BID")
 
@@ -976,7 +988,8 @@ def build_parser():
     p = sub.add_parser("export", parents=[parent_parser],
                        help="Export course to JSON")
     p.add_argument("shifu_bid", help="Course BID")
-    p.add_argument("-o", "--output", default=None, help="Output file (stdout if omitted)")
+    p.add_argument("-o", "--output", default=None,
+                   help="Output file (stdout if omitted)")
 
     # ── create ──
     p = sub.add_parser("create", parents=[parent_parser],
@@ -1004,16 +1017,18 @@ def build_parser():
                        help="Add a new lesson under a chapter")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("--name", required=True, help="Lesson name")
-    p.add_argument("--mdf-file", default=None, help="MDF content file")
+    p.add_argument("--mdf-file", default=None,
+                   help="MarkdownFlow content file")
     p.add_argument("--parent-bid", required=True,
                    help="Parent chapter BID (use add-chapter to create one first)")
 
     # ── update-lesson ──
     p = sub.add_parser("update-lesson", parents=[parent_parser],
-                       help="Update lesson MDF content")
+                       help="Update lesson MarkdownFlow content")
     p.add_argument("shifu_bid", help="Course BID")
     p.add_argument("outline_bid", help="Outline BID")
-    p.add_argument("--mdf-file", required=True, help="MDF content file")
+    p.add_argument("--mdf-file", required=True,
+                   help="MarkdownFlow content file")
 
     # ── rename-lesson ──
     p = sub.add_parser("rename-lesson", parents=[parent_parser],
@@ -1055,7 +1070,8 @@ def build_parser():
                    help="Chapter name (only with --course-dir)")
 
     # ── build ──
-    p = sub.add_parser("build", help="Build import JSON from local course directory")
+    p = sub.add_parser(
+        "build", help="Build import JSON from local course directory")
     p.add_argument("--course-dir", required=True, help="Course directory path")
     p.add_argument("-o", "--output", default=None,
                    help="Output file (default: <course-dir>/shifu-import.json)")
@@ -1063,7 +1079,8 @@ def build_parser():
     p.add_argument("--chapter-name", default=None,
                    help="Chapter name (default: same as course title)")
     p.add_argument("--description", default=None, help="Course description")
-    p.add_argument("--keywords", default=None, help="Keywords (comma-separated)")
+    p.add_argument("--keywords", default=None,
+                   help="Keywords (comma-separated)")
 
     # ── publish ──
     p = sub.add_parser("publish", parents=[parent_parser],

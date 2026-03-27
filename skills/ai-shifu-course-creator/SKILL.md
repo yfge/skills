@@ -61,14 +61,14 @@ Run all five phases from raw material to a live deployed course.
 
 ### Path B: Author Only
 
-Run Phase 1–4 to produce optimized MDF scripts without deploying. Sub-paths:
+Run Phase 1–4 to produce optimized MarkdownFlow scripts without deploying. Sub-paths:
 - **Segment only**: Phase 1 alone for structured segments and manual review.
 - **Generate only**: Phase 3 alone on pre-existing segments to produce lesson scripts.
 - **Optimize only**: Phase 4 alone to audit and improve existing MarkdownFlow scripts.
 
 ### Path C: Deploy Only
 
-Run Phase 5 alone to deploy pre-existing MDF files to the AI-Shifu platform.
+Run Phase 5 alone to deploy pre-existing MarkdownFlow files to the AI-Shifu platform.
 
 ### Path D: Manage Existing
 
@@ -383,7 +383,7 @@ See `references/review-checklist.md`.
 
 ## Phase 5: Deployment
 
-Deploy optimized MDF lesson scripts to the AI-Shifu platform as live courses.
+Deploy optimized MarkdownFlow lesson scripts to the AI-Shifu platform as live courses.
 
 ### Prerequisites
 
@@ -403,7 +403,7 @@ Always use CLI commands. Never make raw HTTP/API calls directly.
 
 ### Course Directory
 
-MDF lesson scripts must be organized in a course directory before deployment. See `references/course-directory-spec.md` for the full specification.
+MarkdownFlow lesson scripts must be organized in a course directory before deployment. See `references/course-directory-spec.md` for the full specification.
 
 When continuing from Phase 4 (Path A), write optimized scripts into the course directory structure automatically.
 
@@ -430,7 +430,7 @@ See `references/cli-reference.md` for the complete command reference and `refere
 5. Verify via platform URL.
 
 **Standalone deployment (Path C):**
-1. Ensure course directory is ready with MDF files.
+1. Ensure course directory is ready with MarkdownFlow files.
 2. Run `build`, `import`, `publish` as above.
 
 ### Common Management
@@ -454,7 +454,7 @@ archive <shifu_bid>
 After any deployment or management operation, verify the result:
 1. Admin console: `https://app.ai-shifu.cn/shifu/<shifu_bid>` (cn) or `https://app.ai-shifu.com/shifu/<shifu_bid>` (global)
 2. Preview: `https://app.ai-shifu.cn/c/<shifu_bid>?preview=true`
-3. Check each lesson's MDF content, variable collection, and interaction logic.
+3. Check each lesson's MarkdownFlow content, variable collection, and interaction logic.
 
 ### Phase 5 Validation
 
