@@ -44,8 +44,7 @@ def save_env(token, base_url=None):
 
 def resolve_auth(args):
     """Resolve base_url and token from CLI args or .env, exit on failure."""
-    base_url = getattr(args, "base_url", None) or os.environ.get(
-        "SHIFU_BASE_URL")
+    base_url = getattr(args, "base_url", None) or os.environ.get("SHIFU_BASE_URL")
     if not base_url:
         print("Error: --base-url is required (or set SHIFU_BASE_URL in .env)")
         sys.exit(1)
