@@ -416,6 +416,7 @@ build --course-dir ./course-a/                          # Build shifu-import.jso
 import --new --json-file ./course-a/shifu-import.json   # Import as new course
 publish <shifu_bid>                                      # Make course live
 show <shifu_bid>                                         # Verify course structure
+show <shifu_bid> <outline_bid>                           # Read a specific lesson
 ```
 
 See `references/cli-reference.md` for the complete command reference and `references/import-json-format.md` for the JSON schema.
@@ -453,8 +454,9 @@ archive <shifu_bid>
 
 After any deployment or management operation, verify the result:
 1. Admin console: `https://app.ai-shifu.cn/shifu/<shifu_bid>` (cn) or `https://app.ai-shifu.com/shifu/<shifu_bid>` (global)
-2. Preview: `https://app.ai-shifu.cn/c/<shifu_bid>?preview=true`
-3. Check each lesson's MarkdownFlow content, variable collection, and interaction logic.
+2. Course preview: `https://app.ai-shifu.cn/c/<shifu_bid>?preview=true` (cn) or `https://app.ai-shifu.com/c/<shifu_bid>?preview=true` (global)
+3. Lesson preview: `https://app.ai-shifu.cn/c/<shifu_bid>?preview=true&lessonid=<outline_bid>` (cn) or `https://app.ai-shifu.com/c/<shifu_bid>?preview=true&lessonid=<outline_bid>` (global)
+4. Use `show <shifu_bid>` to get the lesson `outline_bid`, then check each lesson's MarkdownFlow content, variable collection, and interaction logic.
 
 ### Phase 5 Validation
 

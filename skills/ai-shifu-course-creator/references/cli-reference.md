@@ -54,6 +54,8 @@ history <shifu_bid> <outline_bid>             # MarkdownFlow revision history
 export <shifu_bid> [-o file.json]             # Export course as JSON
 ```
 
+Use `show <shifu_bid>` to get lesson `outline_bid` values when you need a lesson-specific preview URL such as `https://app.ai-shifu.cn/c/<shifu_bid>?preview=true&lessonid=<outline_bid>`.
+
 ## Create Commands
 
 ```bash
