@@ -65,7 +65,8 @@ python3 {skillDir}/scripts/shifu-cli.py show abc123-def456
 Platform URLs:
 
 - Admin: `https://app.ai-shifu.cn/shifu/abc123-def456`
-- Preview: `https://app.ai-shifu.cn/c/abc123-def456?preview=true`
+- Course preview: `https://app.ai-shifu.cn/c/abc123-def456?preview=true`
+- Lesson preview: `https://app.ai-shifu.cn/c/abc123-def456?preview=true&lessonid=<outline_bid>`
 
 ## Acceptance Notes
 
