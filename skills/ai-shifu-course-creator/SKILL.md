@@ -37,9 +37,48 @@ See `references/input-contract.md` for recommended object shapes.
 
 ## Output Boundary
 
-- Final outputs are learner-facing teaching content only.
+- Final outputs are **MarkdownFlow teaching scripts**.
+- The script must be **directive/instructional** (i.e., it tells the model how to teach), not a polished, directly learner-addressed “final lecture/manuscript”.
+- Avoid author-side meta labels such as “Knowledge Block 1/2/3”, “Lesson Objective”, or “Deliverable”. Keep those as implicit structure, not visible narration.
 - Authoring rules, pipeline notes, and process instructions stay in skill docs and references, not in lesson outputs.
 - Internal design notes may appear only in HTML comments when needed.
+
+## MarkdownFlow Authoring Hard Rules (Must Follow)
+
+### 1) Script style: directive, not manuscript
+
+Write in imperative, model-guiding language. Preferred patterns:
+- “Explain to the learner …”
+- “Ask the learner to …”
+- “Have the learner choose …”
+- “After collecting {{var}}, restate the choice and branch …”
+
+Disallowed patterns:
+- Long, polished prose written as if it is the final learner-facing lecture.
+- Author/lesson-plan meta narration (e.g., “Knowledge Block …”, “In this lesson you will …”, “Deliverable: …”).
+
+### 2) Interaction syntax: prompt outside, options inside
+
+For MarkdownFlow interactions, keep the question/prompt **outside** the syntax line.
+The interaction line must contain **only options** (and minimal inline hints when strictly necessary).
+
+Bad:
+`?[%{{topic}} Please pick a topic: A | B | C]`
+
+Good:
+`Ask the learner to pick a topic.`
+`?[%{{topic}} A | B | C]`
+
+### 3) Mandatory anchoring + downstream effect
+
+After every interaction, the script must:
+1. Restate the selection explicitly: `The learner's current choice is {{var}}.`
+2. Use {{var}} to create a visible downstream effect (branching explanation, examples, practice difficulty, feedback).
+
+### 4) Visuals: describe, do not inline source markup
+
+- Do not embed raw SVG/HTML source code inside lesson MDF files.
+- When a visual is needed, write a natural-language instruction: “Show an image that …” and pair it with a brief explanation of what the visual is meant to convey.
 
 ## Pipeline Overview
 
@@ -161,7 +200,7 @@ All gates must pass:
 - Do not wrap full lessons in deterministic blocks (`=== ===` or `!=== !===`).
 - Deterministic blocks are reserved for legally or operationally fixed statements only.
 - If an image must remain unchanged, use single-line deterministic syntax per image.
-- Use `---` between instructional blocks to keep pacing readable.
+
 - Every variable collection step must produce immediate feedback and downstream effect.
 - Core knowledge points require visual + textual explanation together.
 - Consecutive variable collection cannot exceed three variables.
@@ -314,7 +353,7 @@ See `references/optimization-methodology.md`.
 
 ### High-Standard Constraints
 
-- Separate knowledge blocks with `---`.
+
 - Include a lesson cover visual by default.
 - Keep max interactions per lesson at five (recommended three to four).
 - Place interactions at decision points, not only at lesson start.
@@ -483,7 +522,7 @@ See `references/markdownflow-spec.md` for the quick reference.
    - Button + input: `?[%{{var}} Option A | Option B | ...Other, please specify]`
 
 3. Segments:
-   - Use `---` between segments.
+   - Segment separators are not required.
    - Each segment should serve one clear instructional objective.
 
 4. Deterministic output:
