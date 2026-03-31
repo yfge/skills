@@ -72,7 +72,7 @@ Good:
 ### 3) Mandatory anchoring + downstream effect
 
 After every interaction, the script must:
-1. Restate the selection explicitly: `The learner's current choice is {{var}}.`
+1. Restate the selection explicitly as an instruction (not as polished narration), e.g.: `Restate the learner's current choice as {{var}}.`
 2. Use {{var}} to create a visible downstream effect (branching explanation, examples, practice difficulty, feedback).
 
 ### 4) Visuals: describe, do not inline source markup
@@ -192,7 +192,7 @@ All gates must pass:
 - Each lesson resolves one core question.
 - Each lesson contains at least one valid MarkdownFlow interaction, max five interactions total.
 - Each lesson includes a minimum teaching loop: setup, explanation, interaction, close.
-- Lesson language is learner-facing, not pipeline narration.
+- Lesson language must be **instructional/directive** (model-guiding), not pipeline narration.
 - Each lesson includes at least one deepening interaction (calibration, boundary check, or counterintuitive prompt).
 - Action tasks are either immediately executable or explicitly linked to later modules.
 - Variable naming is consistent and traceable.
@@ -250,7 +250,7 @@ Generate runnable MarkdownFlow scripts for each lesson.
 
 Use these defaults unless lesson content requires a justified variation:
 
-1. Learner-facing language only.
+1. Instructional/directive language only (a teaching script, not a final manuscript).
 2. Variable collection is distributed, not front-loaded.
 3. Build evidence chain from observation to mechanism to conclusion.
 4. Use visual-first explanation for abstract concepts, then textual interpretation.
@@ -295,10 +295,9 @@ Optional modules:
 
 ### Visual-Text Coordination
 
-- Include an SVG cover in each lesson by default.
-- Every core concept must include at least one visual-plus-explanation pair.
-- Visuals compress structure; text explains mechanism, limits, and pitfalls.
-- Replace unstable source images with generated SVG/HTML visuals when needed.
+- If a visual is needed, describe it in natural language (e.g., "Show an image that …").
+- Pair every visual instruction with a brief explanation of what the visual is meant to convey.
+- Do not inline raw SVG/HTML markup in MDF lesson files.
 
 ### Interaction Design
 

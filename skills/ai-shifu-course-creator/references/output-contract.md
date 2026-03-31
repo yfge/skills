@@ -4,7 +4,7 @@
 
 1. `lesson_mdf_scripts`
 - One MarkdownFlow file per lesson.
-- Learner-facing language only.
+- Instructional/directive teaching-script language only (model-guiding), not a final learner manuscript.
 
 2. `course_index`
 - `lesson_id`
