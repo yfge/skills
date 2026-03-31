@@ -56,7 +56,7 @@ Each item:
     {
       "lesson_id": "L01",
       "lesson_title": "Core Loop Setup",
-      "mdf_script": "## Objective\n...\n?[%{{learner_goal}} Option A | Option B]\n---\n...",
+      "mdf_script": "## Objective\n...\n?[%{{learner_goal}} Option A | Option B]\n...",
       "used_variables": ["learner_goal"],
       "depends_on_lessons": []
     }
