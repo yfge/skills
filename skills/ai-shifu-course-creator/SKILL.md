@@ -1,6 +1,6 @@
 ---
 name: ai-shifu-course-creator
-description: Use when the user works with AI-Shifu (AI师傅) courses in any capacity: creating, writing, editing, rewriting, optimizing, reordering, deploying, publishing, previewing, or managing MarkdownFlow (MDF) lesson scripts. Covers the full course lifecycle — from converting raw material into structured lessons, to scripting interactions (single-select, multi-select, input, branching), adding variables, images, and system prompts, to deploying and managing live courses on the AI-Shifu platform. Trigger on any mention of AI-Shifu, AI师傅, or MarkdownFlow course scripting.
+description: Use when the user works with AI-Shifu (AI师傅) courses in any capacity of creating, writing, editing, rewriting, optimizing, reordering, deploying, publishing, previewing, or managing MarkdownFlow (MDF) lesson scripts. Covers the full course lifecycle — from converting raw material into structured lessons, to scripting interactions (single-select, multi-select, input, branching), adding variables, images, and course prompts, to deploying and managing live courses on the AI-Shifu platform. Trigger on any mention of AI-Shifu, AI师傅, or MarkdownFlow course scripting.
 ---
 
 # Course Creator
