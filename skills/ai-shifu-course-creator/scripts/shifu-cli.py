@@ -165,7 +165,7 @@ def cmd_login(args):
         # Step 2: Verify code and save token
         print("Verifying code...")
         data = _login_post(base_url, "/api/user/verify_sms_code",
-                           {"mobile": phone, "sms_code": sms_code}, "Verification failed")
+                           {"mobile": phone, "sms_code": sms_code, "login_context": "admin"}, "Verification failed")
 
         token = data.get("data")
         if not token:
