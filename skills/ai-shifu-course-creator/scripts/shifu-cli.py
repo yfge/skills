@@ -184,7 +184,7 @@ def cmd_login(args):
         # Step 1: Send SMS code only, then exit
         print(f"Sending SMS code to {masked}...")
         _login_post(base_url, "/api/user/send_sms_code",
-                    {"mobile": phone}, "Failed to send SMS")
+                    {"mobile": phone, "login_context": "admin"}, "Failed to send SMS")
         print(f"SMS code sent to {masked}. "
               f"Run again with --sms-code <4-digit-code> to complete login.")
 
